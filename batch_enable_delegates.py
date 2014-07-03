@@ -7,7 +7,7 @@ from pprint import pprint
 import time
 
 
-def importkeys(keys) :
+def main() :
     url = "http://localhost:9988/rpc"
     headers = {'content-type': 'application/json'}
     payload2 = {
@@ -17,25 +17,18 @@ def importkeys(keys) :
         "id": 1
     }
 
-    for key in keys:
+    for i in range(101):
         payload = {
-            "method": "wallet_import_private_key",
-            "params": [key],
+            "method": "wallet_delegate_set_block_production",
+            "params": ["init" + str(i), "true"],
             "jsonrpc": "2.0",
             "id": 1
         }
         auth = ('user', 'password')
 
-        print "sending 1 transaction to import key"
+        print "sending 1 transaction to enable delegate init" + str(i)
         response = requests.post(url, data=json.dumps(payload), headers=headers, auth=auth)
         pprint(vars(response))
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print "please input the file containing the private keys"
-        quit()
-    f = open(sys.argv[1],"r") #opens file contain private keys in lines
-    keys = []
-    for line in f:
-        keys.append(line)
-    importkeys(keys)
+    main()
