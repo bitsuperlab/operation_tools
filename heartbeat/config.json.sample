@@ -1,0 +1,14 @@
+{
+  "pubnub_auth": {
+    "_comment": "demo is for test, you should register from https://admin.pubnub.com, and set this key to yourself", 
+    "publish_key" : "demo",
+    "subscribe_key" : "demo",
+    "secret_key" : "demo",
+    "cipher_key" : ""
+  },
+  "bts_rpc": {
+    "url": "http://localhost:9989/rpc",
+    "username": "user",
+    "password": "pass"
+  }
+}

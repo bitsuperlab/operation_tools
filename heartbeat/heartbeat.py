@@ -32,19 +32,13 @@ config_data = open('config.json')
 config = json.load(config_data)
 config_data.close()
 
-pprint(config)
+#pprint(config)
 
-### get these key from https://admin.pubnub.com
-publish_key = config["publish_key"]
-subscribe_key = config["subscribe_key"]
-secret_key = config["secret_key"]
-cipher_key = config["cipher_key"]
-node_state = {node_type:{}, node_type_other:{}}
-ssl_on = False
-
-###
-auth = ('test', 'test') ## user/pass for rpc service
-url = "http://localhost:9989/rpc"  ## rpc url
+## -----------------------------------------------------------------------
+## function about bts rpc
+## -----------------------------------------------------------------------
+auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
+url = config["bts_rpc"]["url"]
 
 def get_state():
     global node_state
@@ -75,16 +69,20 @@ def set_delegate_production(enable):
     set_json = json.loads(vars(set_res)["_content"])
     print set_json
 
-## -----------------------------------------------------------------------
-## Initiate Pubnub State
-## -----------------------------------------------------------------------
-pubnub = Pubnub(publish_key=publish_key, subscribe_key=subscribe_key,
-                secret_key=secret_key, cipher_key=cipher_key, ssl_on=ssl_on)
-
 def is_active():
     global node_state
     return node_state[node_type]["wallet_next_block_production_timestamp"] != None
 
+def switch_active():
+    # TODO check the next bock production timestamp of antoher node, require enough time (at least 2 min) for switch
+    if not is_active():
+        set_delegate_production(True)
+        pubnub.publish(node_type, "stop produce")
+
+
+## -----------------------------------------------------------------------
+## function about pubnub
+## -----------------------------------------------------------------------
 # Asynchronous usage
 def callback(message, channel):
     global node_state
@@ -103,12 +101,6 @@ def callback(message, channel):
 def error(message):
     print("ERROR : " + str(message))
 
-def switch_active():
-    # TODO check the next bock production timestamp of antoher node, require enough time (at least 2 min) for switch
-    if not is_active():
-        set_delegate_production(True)
-        pubnub.publish(node_type, "stop produce")
-
 def state_publish():
     global node_state
     global next_call
@@ -120,6 +112,18 @@ def state_publish():
 
     next_call = next_call + 10
     threading.Timer( next_call - time.time(), state_publish).start()
+
+## -----------------------------------------------------------------------
+## Initiate Pubnub State
+## -----------------------------------------------------------------------
+publish_key = config["pubnub_auth"]["publish_key"]
+subscribe_key = config["pubnub_auth"]["subscribe_key"]
+secret_key = config["pubnub_auth"]["secret_key"]
+cipher_key = config["pubnub_auth"]["cipher_key"]
+node_state = {node_type:{}, node_type_other:{}}
+ssl_on = False
+pubnub = Pubnub(publish_key=publish_key, subscribe_key=subscribe_key,
+                secret_key=secret_key, cipher_key=cipher_key, ssl_on=ssl_on)
 
 pubnub.subscribe(node_type_other, callback=callback, error=error)
 
