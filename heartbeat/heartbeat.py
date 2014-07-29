@@ -13,6 +13,8 @@ import requests
 import json
 import os
 
+from pprint import pprint
+
 import sys
 from Pubnub import Pubnub
 import datetime, threading, time
@@ -28,11 +30,13 @@ config_data = open('config.json')
 config = json.load(config_data)
 config_data.close()
 
+pprint(config)
+
 ### get these key from https://admin.pubnub.com
-publish_key = config.publish_key
-subscribe_key = config.subscribe_key
-secret_key = config.secret_key
-cipher_key = config.cipher_key
+publish_key = config["publish_key"]
+subscribe_key = config["subscribe_key"]
+secret_key = config["secret_key"]
+cipher_key = config["cipher_key"]
 node_state = {node_type:{}, node_type_other:{}}
 ssl_on = False
 
