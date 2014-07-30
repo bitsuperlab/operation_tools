@@ -62,7 +62,7 @@ def query_missing(url, uuid) :
 
     last_block = block_header_num
 
-    print block_header_num
+    #print block_header_num
 
     list_missing = {
         "method": "blockchain_list_missing_block_delegates",
@@ -71,17 +71,18 @@ def query_missing(url, uuid) :
         "id": 1
     }
 
-    print "query last status of producing blocks ..."
+    #print "query last status of producing blocks ..."
     response = requests.post(url, data=json.dumps(list_missing), headers=headers, auth=auth)
     json_result = json.loads(vars(response)["_content"])
     if not "result" in json_result:
         return
     result = json_result["result"]
-    pprint(result)
+    #pprint(result)
     if len(result):
         for d in result:
             if d in delegates:
                 mail_res = send_simple_message(uuid, delegates[d], d, block_header_num)
+                print d , " missed block: " , block_header_num  , ", send mail to: " , delegates[d]
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -92,8 +93,8 @@ if __name__ == "__main__":
 
     s = sched.scheduler(time.time, time.sleep)
     print contact
-    
-    def do_something(sc): 
+
+    def do_something(sc):
         global counter, contact
         if counter > 12 * 60 * 24:
             counter = 0
