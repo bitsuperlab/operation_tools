@@ -48,12 +48,13 @@ def blockchain_list_blocks():
 
     ## 2 blocks delay, avoid fork
     block_header_num = info_json["result"]["blockchain_head_block_num"] - 2
+    if last_block == 0:
+       last_block = block_header_num - 1;
     if last_block == block_header_num:
         return None
-    last_block = block_header_num
     request = {
         "method": "execute_command_line",
-        "params": ["blockchain_list_blocks " +  str(block_header_num) + " 2"],
+        "params": ["blockchain_list_blocks " +  str(last_block) + " " + str(block_header_num - last_block + 1)],
         "jsonrpc": "2.0",
         "id": 1
         }
@@ -71,6 +72,7 @@ def blockchain_list_blocks():
           pos = posnext
        else:
           break
+    last_block = block_header_num
     return
 
 
@@ -81,7 +83,7 @@ def state_publish():
     global next_call
     blockchain_list_blocks()
 
-    next_call = next_call + 10
+    next_call = next_call + 5
     threading.Timer( next_call - time.time(), state_publish).start()
 
 ## -----------------------------------------------------------------------
@@ -95,5 +97,5 @@ ssl_on = False
 pubnub = Pubnub(publish_key=publish_key, subscribe_key=subscribe_key,
     secret_key=secret_key, cipher_key=cipher_key, ssl_on=ssl_on)
 
-next_call = (int (time.time() / 10)) * 10 - 5
+next_call = (int (time.time() / 10)) * 10 + 1
 state_publish()
