@@ -28,6 +28,26 @@ last_block = 0
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
 
+def blockchain_list_delegate(account):
+    headers = {'content-type': 'application/json'}
+    request = {
+        "method": "blockchain_get_account",
+        "params": [account],
+        "jsonrpc": "2.0",
+        "id": 1
+        }
+    responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+    account_info = json.loads(vars(responce)["_content"])["result"]
+    delegate_info = json.loads(vars(responce)["_content"])["result"]["delegate_info"]
+    nproduced = delegate_info["blocks_produced"]
+    nmissed = delegate_info["blocks_missed"]
+    list_delegate = [account_info["id"],account_info["name"],str('%.2f'%(float(delegate_info["votes_for"])/2000000000000))+"%",
+        nproduced, nmissed, str('%.2f'%(float(nproduced*100)/(nproduced+nmissed)))+"%",str(delegate_info["pay_rate"])+"%",
+        str('%.2f'%(float(delegate_info["pay_balance"])/100000))+" BTSX", delegate_info["last_block_num_produced"]]
+    pubnub.publish("blockchain_list_delegate", list_delegate)
+    print "publish:",list_delegate
+
+
 def blockchain_list_blocks():
     global last_block
     headers = {'content-type': 'application/json'}
@@ -67,9 +87,12 @@ def blockchain_list_blocks():
     while True:
        posnext = command_output.find("\n", pos+1)
        if posnext != -1:
-          print "publish:" + command_output[pos+1:posnext]
-          pubnub.publish("blockchain_list_blocks", command_output[pos+1:posnext].split())
+          #print "publish:" + command_output[pos+1:posnext]
+          block_info = command_output[pos+1:posnext].replace(" BTSX","BTSX").split()
           pos = posnext
+          #pubnub.publish("blockchain_list_blocks", block_info)
+          #print(block_info[2])
+          blockchain_list_delegate(block_info[2])
        else:
           break
     last_block = block_header_num

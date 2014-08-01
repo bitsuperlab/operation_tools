@@ -39,3 +39,4 @@ pubnub = Pubnub(publish_key=publish_key, subscribe_key=subscribe_key,
     secret_key=secret_key, cipher_key=cipher_key, ssl_on=ssl_on)
 
 pubnub.subscribe("blockchain_list_blocks", callback=callback, error=error)
+pubnub.subscribe("blockchain_list_delegate", callback=callback, error=error)
