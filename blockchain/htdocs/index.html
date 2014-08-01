@@ -1,0 +1,43 @@
+<!-- Import PubNub Core Lib -->
+<script src="https://pubnub.a.ssl.fastly.net/pubnub.min.js"></script>
+
+<!-- Use WebSocket Constructor for a New Socket Connection -->
+<script>(function() {
+
+    /* 'wss://ORIGIN/PUBLISH_KEY/SUBSCRIBE_KEY/CHANNEL' */
+    WebSocket  = PUBNUB.ws;
+    var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/blockchain_list_blocks')
+
+    // On Message Receive
+    socket.onmessage = function(evt) {
+        console.log('socket receive');
+        console.log(evt.data);
+    }
+
+    // On Socket Close
+    socket.onclose = function() {
+        console.log('socket closed');
+    }
+
+    // On Error
+    socket.onerror = function() {
+        console.log('socket error');
+    }
+
+    // On Connection Establish
+    socket.onopen = function(evt) {
+        console.log('socket open');
+
+        // Send a Message!
+        //socket.send('hello world!');
+    }
+
+    // On Send Complete
+    socket.onsend = function(evt) {
+        console.log('socket send');
+        console.log(evt);
+    }
+
+    console.log(socket)
+
+})();</script>
