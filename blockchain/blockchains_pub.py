@@ -68,7 +68,7 @@ def blockchain_list_blocks():
        posnext = command_output.find("\n", pos+1)
        if posnext != -1:
           print "publish:" + command_output[pos+1:posnext]
-          pubnub.publish("blockchain_list_blocks", command_output[pos+1:posnext])
+          pubnub.publish("blockchain_list_blocks", command_output[pos+1:posnext].split())
           pos = posnext
        else:
           break
