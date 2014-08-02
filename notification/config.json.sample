@@ -1,74 +1,20 @@
 {
-    "hackfisher@gmail.com" : {
-        "delegates" : ["bitsuperlab", "init18", "init58", "init13", "init68", "init70", "init88", "init65", "init53", "init8", "init9", "init97", "init86", "init59", "init72", "init42", "init4", "init43", "init0", "init28", "init80", "init44", "init85"],
-        "count" : 0
+  "contact": {
+    "a@gmail.com" : {
+      "delegates" : ["bitsuperlab", "init18"],
+      "count" : 0
     },
-    "weguo0022@hotmail.com": {
-        "delegates" : ["delegate.webber"],
-        "count" : 0
-    },
-    "whoisgx@outlook.com": {
-        "delegates" : ["mister", "delegate.mister"],
-        "count" : 0
-    },
-    "shrinkprojects@gmail.com": {
-        "delegates" : ["calabiyau", "neuronics"],
-        "count" : 0
-    },
-    "taolje@vip.qq.com": {
-        "delegates" : ["delegate.taolje"],
-        "count" : 0
-    },
-    "jinxionglong@gmail.com": {
-        "delegates" : ["coolspeed"],
-        "count" : 0
-    },
-    "bts500@hotmail.com": {
-        "delegates" : ["cny.bts500", "usd.bts500", "eur.bts500", "dac.bts500"],
-        "count" : 0
-    },
-    "alexchien97@gmail.com": {
-        "delegates" : ["boombastic", "mr.agsexplorer", "mrs.agsexplorer"],
-        "count" : 0
-    },
-    "showard@debian.org": {
-        "delegates" : ["maqifrnswa"],
-        "count" : 0
-    },
-    "691299080@qq.com": {
-        "delegates" : ["btsdac-delegate"],
-        "count" : 0
-    },
-    "jgaltreport@gmail.com": {
-        "delegates" : ["delegate1-galt"],
-        "count" : 0
-    },
-    "13560025466@139.com": {
-        "delegates" : ["crazybit", "anchor.crazybit", "titan.crazybit", "dpos.crazybit"],
-        "count" : 0
-    },
-    "maxweizhao@gmail.com": {
-        "delegates" : ["needle", "lion", "nightwatch"],
-        "count" : 0
-    },
-    "delegate.liondani@hotmail.com": {
-        "delegates" : ["liondani","delegate.liondani","charity.delegate.liondani","greece.delegate.liondani","germany.delegate.liondani","liondani-delegate-1"],
-        "count" : 0
-    },
-    "d7c74dff@opayq.com": {
-        "delegates" : ["delegate.xeldal","delegate2.xeldal","delegate3.xeldal","seans-outpost.charity.xeldal","bitshares-dev.invest.xeldal"],
-        "count" : 0
-    },
-    "shineshine521@gmail.com": {
-        "delegates" : ["btsx.chinesecommunity"],
-        "count" : 0
-    },
-    "nathan@bitshares.org" : {
-        "delegates" : ["delegated-proof-of-steak"],
-        "count" : 0
-    },
-    "pch957@163.com": {
-        "delegates" : ["delegate-alt", "delegate-watchman", "delegate-baozi", "btsdac-delegate"],
-        "count" : 0
+    "b@gmail.com": {
+      "delegates" : ["delegate-alt"],
+      "count" : 0
     }
+  },
+  "mail_gun": {
+    "uuid": "key-xxxxxxxxxxxxxxxxxxxxx"
+  },
+  "bts_rpc": {
+    "url": "http://localhost:9988/rpc",
+    "username": "user",
+    "password": "pass"
+  }
 }
