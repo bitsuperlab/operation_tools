@@ -63,7 +63,7 @@ def blockchain_list_blocks():
       info_json = json.loads(vars(responce)["_content"])
     except ValueError, e:
       print "Can't connect to rpc server"
-      sys.exit()
+      #sys.exit()
       return None
 
     ## 2 blocks delay, avoid fork

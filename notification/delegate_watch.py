@@ -55,7 +55,11 @@ def query_missing() :
     }
 
     info_res = requests.post(url, data=json.dumps(info), headers=headers, auth=auth)
-    info_json = json.loads(vars(info_res)["_content"])
+    try:
+      info_json = json.loads(vars(info_res)["_content"])
+    except ValueError, e:
+      print "Can't connect to rpc server"
+      return None
     if not "result" in info_json:
         return
     block_header_num = info_json["result"]["blockchain_head_block_num"]
