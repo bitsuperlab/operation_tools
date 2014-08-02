@@ -87,10 +87,10 @@ def blockchain_list_blocks():
     while True:
        posnext = command_output.find("\n", pos+1)
        if posnext != -1:
-          #print "publish:" + command_output[pos+1:posnext]
+          print "publish:" + command_output[pos+1:posnext]
           block_info = command_output[pos+1:posnext].replace(" BTSX","BTSX").split()
           pos = posnext
-          #pubnub.publish("blockchain_list_blocks", block_info)
+          pubnub.publish("blockchain_list_blocks", block_info)
           #print(block_info[2])
           blockchain_list_delegate(block_info[2])
        else:
