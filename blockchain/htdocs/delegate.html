@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="shortcut icon" type="image/ico" href="http://www.datatables.net/favicon.ico">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
+
+	<title>DataTables example - Javascript sourced data</title>
+	<link rel="stylesheet" type="text/css" href="tables/media/css/jquery.dataTables.css">
+  <link rel="stylesheet" type="text/css" href="tables/examples/resources/syntax/shCore.css">
+	<link rel="stylesheet" type="text/css" href="tables/examples/resources/demo.css">
+
+  <script src=http://cdn.pubnub.com/pubnub.min.js ></script>
+  <script type="text/javascript" language="javascript" src="tables/media/js/jquery.js"></script>
+	<script type="text/javascript" language="javascript" src="tables/media/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" language="javascript" src="tables/examples/resources/syntax/shCore.js"></script>
+  <script type="text/javascript" language="javascript" src="tables/examples/resources/demo.js"></script>
+	<script type="text/javascript" language="javascript" class="init">
+
+  var pubnub = PUBNUB.init({
+    publish_key   : 'demo',
+    subscribe_key : 'demo'
+  })
+ 
+  pubnub.subscribe({
+    channel : "blockchain_list_delegate",
+    message : function(m){
+      var idx = table.column(0).data().indexOf(m[0]);
+      var blocknum = table.column(8).data()[idx];
+      var idx2 = table.column(8).data().sort().indexOf(blocknum);
+      if(idx >= 0){
+      table.row(idx2,{order:'original'}).remove()
+      table.row.add(m).draw();
+      } else {
+      table.row.add(m).draw();
+      }
+      table.draw()
+      }
+  })
+ 
+  pubnub.history({
+    channel : "blockchain_list_delegate",
+    count: 101,
+    callback: function(m){
+      for ( var i in m[0]){
+      var line = m[0][i]
+      var idx = table.column(0).data().indexOf(line[0])
+      if(idx >= 0){
+      table.row(idx,{order:'original'}).remove()
+      table.row.add(line)
+      } else {
+      table.row.add(line)
+      }
+      }
+      table.draw()
+      }
+  })
+
+$(document).ready(function() {
+  table = $('#example').DataTable( {
+       "order": [[ 8, "desc" ]],
+       "pageLength": 111
+  } );
+} );
+
+	</script>
+</head>
+
+<body class="dt-example">
+	<div class="container">
+		<section>
+			<h1>Delegate list<span> by BitSuperLab</span></h1>
+
+			<table id="example" class="display" cellspacing="0" width="100%">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>NAME</th>
+						<th>APPROVAL</th>
+						<th>PRODUCED</th>
+						<th>MISSED</th>
+						<th>RELIABILITY</th>
+						<th>PAY RATE</th>
+						<th>PAY BALANCE</th>
+						<th>LAST BLOCK</th>
+					</tr>
+				</thead>
+			</table>
+	</section>
+</body>
+</html>
