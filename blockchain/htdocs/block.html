@@ -25,6 +25,9 @@
   pubnub.subscribe({
     channel : "blockchain_list_blocks",
     message : function(m){
+      if(m[0] == "MISSED"){
+         m[0] = "<font color=\"#FF0000\">MISSED</font>"
+         }
       table.row.add(m).draw();
       }
   })
@@ -34,6 +37,9 @@
     count: 101,
     callback: function(m){
       for ( var i in m[0]){
+      if(m[0][i][0] == "MISSED"){
+         m[0][i][0] = "<font color=\"#FF0000\">MISSED</font>"
+         }
       table.row.add(m[0][i])
       }
       table.draw()
