@@ -15,12 +15,15 @@ import sys
 
 from Pubnub import Pubnub
 import datetime, threading, time
+from pprint import pprint
 
 config_data = open('config.json')
 config = json.load(config_data)
 config_data.close()
 
 last_block = 0
+delegate_dict = {}
+delegate_dict_old = {}
 
 ## -----------------------------------------------------------------------
 ## function about bts rpc
@@ -28,25 +31,38 @@ last_block = 0
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
 
-def blockchain_list_delegate(account):
+def blockchain_list_delegate():
+    global delegate_dict, delegate_dict_old
     headers = {'content-type': 'application/json'}
     request = {
-        "method": "blockchain_get_account",
-        "params": [account],
+        "method": "blockchain_list_delegates",
+        "params": [0, 150],
         "jsonrpc": "2.0",
         "id": 1
         }
     responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-    account_info = json.loads(vars(responce)["_content"])["result"]
-    delegate_info = json.loads(vars(responce)["_content"])["result"]["delegate_info"]
-    nproduced = delegate_info["blocks_produced"]
-    nmissed = delegate_info["blocks_missed"]
-    list_delegate = [account_info["id"],account_info["name"],str('%.2f'%(float(delegate_info["votes_for"])/2000000000000))+"%",
-        nproduced, nmissed, str('%.2f'%(float(nproduced*100)/(nproduced+nmissed)))+"%",str(delegate_info["pay_rate"])+"%",
-        str('%.2f'%(float(delegate_info["pay_balance"])/100000))+" BTSX", delegate_info["last_block_num_produced"]]
-    pubnub.publish("blockchain_list_delegate", list_delegate)
-    print "publish:",list_delegate
+    delegate_lists_json = json.loads(vars(responce)["_content"])["result"]
+    for account_info in delegate_lists_json:
+      delegate_info = account_info["delegate_info"]
 
+      id = account_info["id"]
+      name = account_info["name"]
+      approval = float('%.2f'% (delegate_info["votes_for"]/2000000000000.0))
+      produced = delegate_info["blocks_produced"]
+      missed = delegate_info["blocks_missed"]
+      if produced+missed == 0:
+        reliability = "N/A"
+      else:
+        reliability = float('%.2f'%(produced*100.0/(produced+missed)))
+      pay_rate = delegate_info["pay_rate"]
+      pay_balance = float('%.2f'%(delegate_info["pay_balance"]/100000.0))
+      last_block = delegate_info["last_block_num_produced"]
+
+      delegate_dict[id] = [id, name, approval, produced, missed, reliability, pay_rate, pay_balance, last_block]
+      if delegate_dict_old.get(id) != delegate_dict[id]:
+         pubnub.publish("blockchain_list_delegate", delegate_dict[id])
+         print "publish", delegate_dict[id]
+         delegate_dict_old[id] = delegate_dict[id]
 
 def blockchain_list_blocks():
     global last_block
@@ -63,7 +79,6 @@ def blockchain_list_blocks():
       info_json = json.loads(vars(responce)["_content"])
     except ValueError, e:
       print "Can't connect to rpc server"
-      #sys.exit()
       return None
 
     ## 2 blocks delay, avoid fork
@@ -92,7 +107,6 @@ def blockchain_list_blocks():
           pos = posnext
           pubnub.publish("blockchain_list_blocks", block_info)
           #print(block_info[2])
-          blockchain_list_delegate(block_info[2])
        else:
           break
     last_block = block_header_num
@@ -102,12 +116,18 @@ def blockchain_list_blocks():
 ## -----------------------------------------------------------------------
 ## function about pubnub
 ## -----------------------------------------------------------------------
-def state_publish():
+def publish_block():
     global next_call
     blockchain_list_blocks()
 
     next_call = next_call + 5
-    threading.Timer( next_call - time.time(), state_publish).start()
+    threading.Timer( next_call - time.time(), publish_block).start()
+
+def publish_delegate():
+    global next_call2
+    blockchain_list_delegate()
+    next_call2 = next_call2 + 10
+    threading.Timer( next_call2 - time.time(), publish_delegate).start()
 
 ## -----------------------------------------------------------------------
 ## Initiate Pubnub State
@@ -121,4 +141,6 @@ pubnub = Pubnub(publish_key=publish_key, subscribe_key=subscribe_key,
     secret_key=secret_key, cipher_key=cipher_key, ssl_on=ssl_on)
 
 next_call = (int (time.time() / 10)) * 10 + 1
-state_publish()
+next_call2 = next_call
+publish_block()
+publish_delegate()

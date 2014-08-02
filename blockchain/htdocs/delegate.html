@@ -25,17 +25,14 @@
   pubnub.subscribe({
     channel : "blockchain_list_delegate",
     message : function(m){
-      var idx = table.column(0).data().indexOf(m[0]);
-      var blocknum = table.column(8).data()[idx];
-      var idx2 = table.column(8).data().sort().indexOf(blocknum);
-      if(idx >= 0){
-      table.row(idx2,{order:'original'}).remove()
-      table.row.add(m).draw();
-      } else {
-      table.row.add(m).draw();
-      }
-      table.draw()
-      }
+        var idx = table.column(0,{order:'index'}).data().indexOf(m[0]);
+        if(idx >= 0){
+            table.row(idx).data( m );
+            table.row(idx).draw()
+           } else {
+            table.row.add(m).draw();
+           }
+        }
   })
  
   pubnub.history({
@@ -43,23 +40,25 @@
     count: 101,
     callback: function(m){
       for ( var i in m[0]){
-      var line = m[0][i]
-      var idx = table.column(0).data().indexOf(line[0])
-      if(idx >= 0){
-      table.row(idx,{order:'original'}).remove()
-      table.row.add(line)
-      } else {
-      table.row.add(line)
-      }
+        var line = m[0][i]
+        var idx = table.column(0,{order:'index'}).data().indexOf(line[0]);
+        if(idx >= 0){
+            table.row(idx).data( line );
+           } else {
+            table.row.add(line)
+           }
       }
       table.draw()
-      }
+
+    }
+        
   })
 
 $(document).ready(function() {
   table = $('#example').DataTable( {
        "order": [[ 8, "desc" ]],
-       "pageLength": 111
+       "pageLength": 10,
+       "deferRender": true
   } );
 } );
 
