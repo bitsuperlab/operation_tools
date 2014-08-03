@@ -107,14 +107,14 @@ def blockchain_list_blocks():
           pos = posnext
           pubnub.publish("blockchain_list_blocks", block_info)
           if block_info[0] != "MISSED":
-            blockchain_list_transactions(block_info[0])
+            blockchain_list_transactions(block_info[0], block_info[1])
           #print(block_info[2])
        else:
           break
     last_block = block_header_num
     return
 
-def blockchain_list_transactions(blockID):
+def blockchain_list_transactions(blockID, time_stamp):
     headers = {'content-type': 'application/json'}
     request = {
         "method": "blockchain_get_block_transactions",
@@ -135,6 +135,7 @@ def blockchain_list_transactions(blockID):
        withdraws = deposits = fees = 0.0
        register_name = ""
        type = "transfer"
+       id = transaction[0][0:8]
        transaction_json = transaction[1]
        location = str(transaction_json["chain_location"]["block_num"]) + '.' + str(transaction_json["chain_location"]["trx_num"])
 
@@ -153,8 +154,8 @@ def blockchain_list_transactions(blockID):
        deposits = float('%.2f'%(deposits / 100000.0))
        fees = float('%.2f'%(withdraws - deposits))
 
-       transaction_info = [location, type, register_name, deposits, fees ]
-       pubnub.publish("blockchain_list_trx2", transaction_info)
+       transaction_info = [location, time_stamp, type, register_name, deposits, fees ,id]
+       pubnub.publish("blockchain_list_trx4", transaction_info)
        print(transaction_info)
 
 

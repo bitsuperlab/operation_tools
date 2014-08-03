@@ -23,14 +23,14 @@
   })
  
   pubnub.subscribe({
-    channel : "blockchain_list_trx2",
+    channel : "blockchain_list_trx4",
     message : function(m){
       table.row.add(m).draw(false);
       }
   })
  
   pubnub.history({
-    channel : "blockchain_list_trx2",
+    channel : "blockchain_list_trx4",
     count: 20,
     callback: function(m){
       for ( var i in m[0]){
@@ -61,10 +61,12 @@ $(document).ready(function() {
 				<thead>
 					<tr>
 						<th>BLOCK</th>
+						<th>TIMESTAMP</th>
 						<th>TYPE</th>
             <th>REGISTER NAME</th>
             <th>AMOUNT</th>
 						<th>FEES</th>
+						<th>ID</th>
 					</tr>
 				</thead>
 			</table>
