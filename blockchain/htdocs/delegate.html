@@ -42,9 +42,7 @@
       for ( var i in m[0]){
         var line = m[0][i]
         var idx = table.column(0,{order:'index'}).data().indexOf(line[0]);
-        if(idx >= 0){
-            table.row(idx).data( line );
-           } else {
+        if(idx <  0){
             table.row.add(line)
            }
       }
