@@ -106,7 +106,8 @@ def blockchain_list_blocks():
           block_info = command_output[pos+1:posnext].replace(" BTSX","BTSX").split()
           pos = posnext
           pubnub.publish("blockchain_list_blocks", block_info)
-          blockchain_list_transactions(block_info[0])
+          if block_info[0] != "MISSED":
+            blockchain_list_transactions(block_info[0])
           #print(block_info[2])
        else:
           break
