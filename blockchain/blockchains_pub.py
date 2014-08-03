@@ -153,11 +153,8 @@ def blockchain_list_transactions(blockID):
        deposits = float('%.2f'%(deposits / 100000.0))
        fees = float('%.2f'%(withdraws - deposits))
 
-       if type == "register":
-          transaction_info = [location, type, register_name, fees ]
-       else:
-          transaction_info = [location, type, deposits, fees ]
-       pubnub.publish("blockchain_list_trx", transaction_info)
+       transaction_info = [location, type, register_name, deposits, fees ]
+       pubnub.publish("blockchain_list_trx2", transaction_info)
        print(transaction_info)
 
 

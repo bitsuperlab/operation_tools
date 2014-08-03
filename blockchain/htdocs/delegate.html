@@ -28,9 +28,9 @@
         var idx = table.column(0,{order:'index'}).data().indexOf(m[0]);
         if(idx >= 0){
             table.row(idx).data( m );
-            table.row(idx).draw()
+            table.row(idx).draw(false)
            } else {
-            table.row.add(m).draw();
+            table.row.add(m).draw(false);
            }
         }
   })
@@ -46,7 +46,7 @@
             table.row.add(line)
            }
       }
-      table.draw()
+      table.draw(false)
 
     }
         
@@ -55,6 +55,7 @@
 $(document).ready(function() {
   table = $('#example').DataTable( {
        "order": [[ 8, "desc" ]],
+       "stateSave": true,
        "pageLength": 10,
        "deferRender": true
   } );

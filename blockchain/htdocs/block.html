@@ -28,7 +28,7 @@
       if(m[0] == "MISSED"){
          m[0] = "<font color=\"#FF0000\">MISSED</font>"
          }
-      table.row.add(m).draw();
+      table.row.add(m).draw(false);
       }
   })
  
@@ -42,13 +42,15 @@
          }
       table.row.add(m[0][i])
       }
-      table.draw()
+      table.draw(false)
       }
   })
 
 $(document).ready(function() {
   table = $('#example').DataTable( {
        "order": [[ 1, "desc" ]],
+       "stateSave": true,
+       "deferRender": true,
        "pageLength": 100
   } );
 } );

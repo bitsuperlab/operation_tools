@@ -23,26 +23,28 @@
   })
  
   pubnub.subscribe({
-    channel : "blockchain_list_trx",
+    channel : "blockchain_list_trx2",
     message : function(m){
-      table.row.add(m).draw();
+      table.row.add(m).draw(false);
       }
   })
  
   pubnub.history({
-    channel : "blockchain_list_trx",
+    channel : "blockchain_list_trx2",
     count: 20,
     callback: function(m){
       for ( var i in m[0]){
       table.row.add(m[0][i])
       }
-      table.draw()
+      table.draw(false)
       }
   })
 
 $(document).ready(function() {
   table = $('#example').DataTable( {
        "order": [[ 0, "desc" ]],
+       "stateSave": true,
+       "deferRender": true,
        "pageLength": 10
   } );
 } );
@@ -60,7 +62,8 @@ $(document).ready(function() {
 					<tr>
 						<th>BLOCK</th>
 						<th>TYPE</th>
-            <th>AMOUNT/NAME</th>
+            <th>REGISTER NAME</th>
+            <th>AMOUNT</th>
 						<th>FEES</th>
 					</tr>
 				</thead>
