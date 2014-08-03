@@ -32,6 +32,7 @@ secret_key = config["pubnub_auth"]["secret_key"]
 cipher_key = config["pubnub_auth"]["cipher_key"]
 channel1 = "blockchain_list_blocks"
 channel2 = "blockchain_list_delegate"
+channel3 = "blockchain_list_trx"
 ssl_on = False
 pubnub = Pubnub(publish_key=publish_key, subscribe_key=subscribe_key,
     secret_key=secret_key, cipher_key=cipher_key, ssl_on=ssl_on)
@@ -45,6 +46,9 @@ def who_is_here_sync():
     print
     print "Channel: " + channel2
     pprint(pubnub.here_now(channel2))
+    print
+    print "Channel: " + channel3
+    pprint(pubnub.here_now(channel3))
     threading.Timer( 10, who_is_here_sync).start()
 
 # Asynchronous usage
@@ -63,7 +67,7 @@ def who_is_here():
     pubnub.here_now(channel1, callback=callback1, error=callback1)
     pubnub.here_now(channel2, callback=callback2, error=callback2)
 
-    threading.Timer( 10, who_is_here).start()
+    threading.Timer( 60, who_is_here).start()
 
 
 
