@@ -82,7 +82,7 @@ def blockchain_list_blocks():
       return None
 
     ## 2 blocks delay, avoid fork
-    block_header_num = info_json["result"]["blockchain_head_block_num"] - 2
+    block_header_num = info_json["result"]["blockchain_head_block_num"] - 1
     if last_block == 0:
        last_block = block_header_num - 1;
     if last_block == block_header_num:
@@ -106,11 +106,59 @@ def blockchain_list_blocks():
           block_info = command_output[pos+1:posnext].replace(" BTSX","BTSX").split()
           pos = posnext
           pubnub.publish("blockchain_list_blocks", block_info)
+          blockchain_list_transactions(block_info[0])
           #print(block_info[2])
        else:
           break
     last_block = block_header_num
     return
+
+def blockchain_list_transactions(blockID):
+    headers = {'content-type': 'application/json'}
+    request = {
+        "method": "blockchain_get_block_transactions",
+        "params": [blockID],
+        "jsonrpc": "2.0",
+        "id": 1
+        }
+    responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+
+    try:
+      info_json = json.loads(vars(responce)["_content"])
+    except ValueError, e:
+      print "Can't connect to rpc server"
+      return None
+    transaction_lists = json.loads(vars(responce)["_content"])["result"]
+    for transaction in transaction_lists:
+       transaction_info = {};
+       withdraws = deposits = fees = 0.0
+       register_name = ""
+       type = "transfer"
+       transaction_json = transaction[1]
+       location = str(transaction_json["chain_location"]["block_num"]) + '.' + str(transaction_json["chain_location"]["trx_num"])
+
+       for operation in transaction_json["trx"]["operations"]:
+         if operation["type"] == "register_account_op_type":
+           type = "register"
+           register_name = operation["data"]["name"]
+         elif operation["type"] == "withdraw_op_type":
+           withdraws = withdraws + operation["data"]["amount"]
+         elif operation["type"] == "withdraw_pay_op_type":
+           withdraws = withdraws + operation["data"]["amount"]
+         elif operation["type"] == "deposit_op_type":
+           deposits = deposits + operation["data"]["amount"]
+
+       withdraws = float('%.2f '% (withdraws / 100000.0))
+       deposits = float('%.2f'%(deposits / 100000.0))
+       fees = float('%.2f'%(withdraws - deposits))
+
+       if type == "register":
+          transaction_info = [location, type, register_name, fees ]
+       else:
+          transaction_info = [location, type, deposits, fees ]
+       pubnub.publish("blockchain_list_trx", transaction_info)
+       print(transaction_info)
+
 
 
 ## -----------------------------------------------------------------------
