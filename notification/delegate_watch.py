@@ -8,8 +8,9 @@ import time
 import sched, time
 
 config_data = open('config.json')
-contact = json.load(config_data)
+config = json.load(config_data)
 config_data.close()
+contact = config["contact"]
 
 delegates = {}
 
@@ -23,8 +24,9 @@ for key in contact.keys():
 
 pprint(delegates)
 
-def send_simple_message(uuid, email, delegate, block_num):
+def send_simple_message(email, delegate, block_num):
     global contact
+    uuid = config["mail_gun"]["uuid"]
     if contact[email]["count"] > 10:
         print email + " exceed the maximum notification"
         return
@@ -38,11 +40,12 @@ def send_simple_message(uuid, email, delegate, block_num):
                 "subject": delegate + " is missing blocks",
                 "text": "The delegate " + delegate + " is missing block" + str(block_num) + ", please check it ASAP!"})
 
-def query_missing(url, uuid) :
+def query_missing() :
     global last_block, contact, delegates
     headers = {'content-type': 'application/json'}
 
-    auth = ('test', 'test')
+    auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
+    url = config["bts_rpc"]["url"]
 
     info = {
         "method": "info",
@@ -52,7 +55,11 @@ def query_missing(url, uuid) :
     }
 
     info_res = requests.post(url, data=json.dumps(info), headers=headers, auth=auth)
-    info_json = json.loads(vars(info_res)["_content"])
+    try:
+      info_json = json.loads(vars(info_res)["_content"])
+    except ValueError, e:
+      print "Can't connect to rpc server"
+      return None
     if not "result" in info_json:
         return
     block_header_num = info_json["result"]["blockchain_head_block_num"]
@@ -62,38 +69,34 @@ def query_missing(url, uuid) :
 
     last_block = block_header_num
 
-    print block_header_num
+    #print block_header_num
 
     list_missing = {
         "method": "blockchain_list_missing_block_delegates",
-        "params": [block_header_num],
+        "params": [block_header_num - 2],
         "jsonrpc": "2.0",
         "id": 1
     }
 
-    print "query last status of producing blocks ..."
+    #print "query last status of producing blocks ..."
     response = requests.post(url, data=json.dumps(list_missing), headers=headers, auth=auth)
     json_result = json.loads(vars(response)["_content"])
     if not "result" in json_result:
         return
     result = json_result["result"]
-    pprint(result)
+    #pprint(result)
     if len(result):
         for d in result:
+            print time.strftime("%x %X", time.localtime(time.time())), d , " missed block: " , block_header_num-2
             if d in delegates:
-                mail_res = send_simple_message(uuid, delegates[d], d, block_header_num)
+                mail_res = send_simple_message(delegates[d], d, block_header_num -2)
+                print "send mail to: " , delegates[d]
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print "please input the url of the rpc server and the id of mail gun service"
-        quit()
-    url = sys.argv[1]
-    uuid = sys.argv[2]
-
     s = sched.scheduler(time.time, time.sleep)
     print contact
-    
-    def do_something(sc): 
+
+    def do_something(sc):
         global counter, contact
         if counter > 12 * 60 * 24:
             counter = 0
@@ -102,7 +105,7 @@ if __name__ == "__main__":
 
         counter += 1
         # do your stuff
-        query_missing(url, uuid)
+        query_missing()
         sc.enter(5, 1, do_something, (sc,))
 
     s.enter(5, 1, do_something, (s,))

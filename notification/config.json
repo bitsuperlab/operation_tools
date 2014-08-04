@@ -1,6 +1,0 @@
-{
-    "example@replace-me.org" : {
-        "delegates" : ["example-delegate"],
-        "count" : 0
-    }
-}

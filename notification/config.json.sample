@@ -1,0 +1,20 @@
+{
+  "contact": {
+    "a@gmail.com" : {
+      "delegates" : ["bitsuperlab", "init18"],
+      "count" : 0
+    },
+    "b@gmail.com": {
+      "delegates" : ["delegate-alt"],
+      "count" : 0
+    }
+  },
+  "mail_gun": {
+    "uuid": "key-xxxxxxxxxxxxxxxxxxxxx"
+  },
+  "bts_rpc": {
+    "url": "http://localhost:9988/rpc",
+    "username": "user",
+    "password": "pass"
+  }
+}
