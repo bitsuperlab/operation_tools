@@ -31,7 +31,7 @@
  
   pubnub.history({
     channel : "blockchain_list_trx4",
-    count: 20,
+    count: 200,
     callback: function(m){
       for ( var i in m[0]){
       table.row.add(m[0][i])
@@ -45,7 +45,16 @@ $(document).ready(function() {
        "order": [[ 0, "desc" ]],
        "stateSave": true,
        "deferRender": true,
-       "pageLength": 10
+       "pageLength": 10,
+       "aoColumns": [
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [] }
+       ]
   } );
 } );
 
@@ -64,7 +73,7 @@ $(document).ready(function() {
 						<th>TIMESTAMP</th>
 						<th>TYPE</th>
             <th>REGISTER NAME</th>
-            <th>AMOUNT</th>
+            <th>AMOUNT(BTSX)</th>
 						<th>FEES</th>
 						<th>ID</th>
 					</tr>

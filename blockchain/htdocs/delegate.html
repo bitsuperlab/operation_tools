@@ -57,7 +57,41 @@ $(document).ready(function() {
        "order": [[ 8, "desc" ]],
        "stateSave": true,
        "pageLength": 10,
-       "deferRender": true
+       "deferRender": true,
+       "columnDefs": [
+           {
+                "render": function ( data, type, row ) {
+                    return data +'%';
+                },
+                "targets": 2
+           },
+           {
+                "render": function ( data, type, row ) {
+                    if(data == "N/A"){
+                        return ""
+                        }
+                    return data +'%';
+                },
+                "targets": 5
+           },
+           {
+                "render": function ( data, type, row ) {
+                    return data +'%';
+                },
+                "targets": 6
+           }
+         ],
+       "aoColumns": [
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] },
+           { "orderSequence": [ "desc", "asc" ] }
+       ]
   } );
 } );
 
@@ -79,7 +113,7 @@ $(document).ready(function() {
 						<th>MISSED</th>
 						<th>RELIABILITY</th>
 						<th>PAY RATE</th>
-						<th>PAY BALANCE</th>
+						<th>PAY(BTSX)</th>
 						<th>LAST BLOCK</th>
 					</tr>
 				</thead>
