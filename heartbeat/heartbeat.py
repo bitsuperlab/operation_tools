@@ -109,10 +109,13 @@ def error(message):
 def state_publish():
     global node_state
     global next_call
-    get_state()
-    print datetime.datetime.now(), 'publish', node_state[node_type]
-    pubnub.publish(node_type, node_state[node_type])
-    select_active()
+    try:
+      get_state()
+      print datetime.datetime.now(), 'publish', node_state[node_type]
+      pubnub.publish(node_type, node_state[node_type])
+      select_active()
+    except:
+      print "unknown error"
 
     next_call = next_call + 10
     threading.Timer( next_call - time.time(), state_publish).start()

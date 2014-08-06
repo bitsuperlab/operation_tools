@@ -73,11 +73,11 @@ def blockchain_list_blocks():
         "jsonrpc": "2.0",
         "id": 1
         }
-    responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
 
     try:
+      responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
       info_json = json.loads(vars(responce)["_content"])
-    except ValueError, e:
+    except:
       print "Can't connect to rpc server"
       return None
 
@@ -122,11 +122,10 @@ def blockchain_list_transactions(blockID, time_stamp):
         "jsonrpc": "2.0",
         "id": 1
         }
-    responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-
     try:
+      responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
       info_json = json.loads(vars(responce)["_content"])
-    except ValueError, e:
+    except:
       print "Can't connect to rpc server"
       return None
     transaction_lists = json.loads(vars(responce)["_content"])["result"]

@@ -54,10 +54,10 @@ def query_missing() :
         "id": 1
     }
 
-    info_res = requests.post(url, data=json.dumps(info), headers=headers, auth=auth)
     try:
+      info_res = requests.post(url, data=json.dumps(info), headers=headers, auth=auth)
       info_json = json.loads(vars(info_res)["_content"])
-    except ValueError, e:
+    except:
       print "Can't connect to rpc server"
       return None
     if not "result" in info_json:
