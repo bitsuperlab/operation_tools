@@ -40,8 +40,11 @@ def blockchain_list_delegate():
         "jsonrpc": "2.0",
         "id": 1
         }
-    responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-    delegate_lists_json = json.loads(vars(responce)["_content"])["result"]
+    try:
+      responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+      delegate_lists_json = json.loads(vars(responce)["_content"])["result"]
+    except:
+      print "Can't connect to rpc server"
     for account_info in delegate_lists_json:
       delegate_info = account_info["delegate_info"]
 
@@ -93,8 +96,12 @@ def blockchain_list_blocks():
         "jsonrpc": "2.0",
         "id": 1
         }
-    responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-    command_output = json.loads(vars(responce)["_content"])["result"]
+    try:
+      responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+      command_output = json.loads(vars(responce)["_content"])["result"]
+    except:
+      print "Can't connect to rpc server"
+      return None
     pos = 0
     ### ignore first 3 lines
     for x in range(0,3):

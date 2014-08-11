@@ -79,8 +79,12 @@ def query_missing() :
     }
 
     #print "query last status of producing blocks ..."
-    response = requests.post(url, data=json.dumps(list_missing), headers=headers, auth=auth)
-    json_result = json.loads(vars(response)["_content"])
+    try:
+      response = requests.post(url, data=json.dumps(list_missing), headers=headers, auth=auth)
+      json_result = json.loads(vars(response)["_content"])
+    except:
+      print "Can't connect to rpc server"
+      return None
     if not "result" in json_result:
         return
     result = json_result["result"]
