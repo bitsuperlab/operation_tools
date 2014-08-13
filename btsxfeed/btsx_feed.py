@@ -78,6 +78,9 @@ def get_rate_from_yahoo():
 
 def confirm():
     for asset in asset_list:
+      if len(price[asset]) == 0:
+        print "can't get price of", asset
+        return False
       price_average[asset] = sum(price[asset])/len(price[asset])
       print asset, ":", price[asset], ",average:", price_average[asset]
     while True:
