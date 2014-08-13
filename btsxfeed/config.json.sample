@@ -1,0 +1,9 @@
+{
+  "bts_rpc": {
+    "url": "http://localhost:9989/rpc",
+    "username": "user",
+    "password": "pass"
+  },
+  "asset_list": ["USD","GLD","BTC"],
+  "delegate_list": ["delegate.baozi"]
+}
