@@ -114,8 +114,12 @@ def fetch_price():
       print "Warning: can't get price of", asset
       continue
     price_average[asset] = sum(price[asset])/len(price[asset])
-    print 'Fetch:', asset, price[asset], ",ave:", price_average[asset]
-    if price_average_last[asset] == 0.0 or fabs(price_average[asset] - price_average_last[asset])/price_average_last[asset] > 0.05:
+    if price_average_last[asset] != 0.0:
+      change = 100.0 * fabs(price_average[asset] - price_average_last[asset])/price_average_last[asset]
+    else:
+      change = 100.0
+    print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
+    if change > 5:
       price_average_last[asset] = price_average[asset]
       update_feed(price_average[asset], asset)
   threading.Timer( 60, fetch_price).start()
