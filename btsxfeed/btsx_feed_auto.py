@@ -74,12 +74,11 @@ def get_rate_from_yahoo():
     posnext = responce.text.find("\n", pos)
     rate_xau_cny = float(responce.text[pos:posnext])
     print "Fetch: rate xau/cny", rate_xau_cny
+    ## loop every 10 minutes
+    threading.Timer( 600, get_rate_from_yahoo).start()
   except:
     print "Warning: unknown error, try again after 1 seconds"
-    time.sleep(1)
-    get_rate_from_yahoo()
-  ## loop every 10 minutes
-  threading.Timer( 600, get_rate_from_yahoo).start()
+    threading.Timer( 1, get_rate_from_yahoo).start()
 
 def update_feed(price, asset):
   for delegate in delegate_list:
