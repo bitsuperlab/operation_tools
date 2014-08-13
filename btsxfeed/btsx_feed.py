@@ -63,13 +63,14 @@ def get_rate_from_yahoo():
   global rate_usd_cny, rate_xau_cny
   try:
     url="http://download.finance.yahoo.com/d/quotes.csv"
-    params = {'s':'USDCNY=X','f':'l1','e':'.csv'}
+    params = {'s':'USDCNY=X,XAUCNY=X','f':'l1','e':'.csv'}
     responce = requests.get(url=url, headers=headers,params=params)
-    rate_usd_cny = float(responce.text)
-    url="http://download.finance.yahoo.com/d/quotes.csv"
-    params = {'s':'XAUCNY=X','f':'l1','e':'.csv'}
-    responce = requests.get(url=url, headers=headers,params=params)
-    rate_xau_cny = float(responce.text)
+    pos = posnext = 0
+    posnext = responce.text.find("\n", pos)
+    rate_usd_cny = float(responce.text[pos:posnext])
+    pos = posnext + 1
+    posnext = responce.text.find("\n", pos)
+    rate_xau_cny = float(responce.text[pos:posnext])
   except:
     print "unknown error, try again after 1 seconds"
     time.sleep(1)
