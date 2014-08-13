@@ -149,6 +149,9 @@ def blockchain_list_transactions(blockID, time_stamp):
          if operation["type"] == "register_account_op_type":
            type = "register"
            register_name = operation["data"]["name"]
+         elif operation["type"] == "create_asset_op_type":
+           type = "asset"
+           register_name = operation["data"]["symbol"]
          elif operation["type"] == "withdraw_op_type":
            withdraws = withdraws + operation["data"]["amount"]
          elif operation["type"] == "withdraw_pay_op_type":
