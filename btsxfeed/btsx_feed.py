@@ -96,7 +96,7 @@ def update_feed():
         headers = {'content-type': 'application/json'}
         request = {
             "method": "wallet_publish_price_feed",
-            "params": [delegate, asset, price_average[asset]],
+            "params": [delegate, price_average[asset], asset],
             "jsonrpc": "2.0",
             "id": 1
             }
@@ -104,7 +104,7 @@ def update_feed():
           try:
             responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
             result = json.loads(vars(responce)["_content"])
-            #print delegate, asset, price_average[asset]
+            #print delegate, price_average[asset], asset
           except:
             print "Can't connect to rpc server, retry 5 seconds later"
             time.sleep(5)
