@@ -45,6 +45,8 @@ def blockchain_list_delegate():
       delegate_lists_json = json.loads(vars(responce)["_content"])["result"]
     except:
       print "Can't connect to rpc server"
+      return
+
     for account_info in delegate_lists_json:
       delegate_info = account_info["delegate_info"]
 
