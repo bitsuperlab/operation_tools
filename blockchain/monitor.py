@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ## www.pubnub.com - PubNub Real-time push service in the cloud.
 # coding=utf8
 
