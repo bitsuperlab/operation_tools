@@ -27,9 +27,9 @@ pprint(delegates)
 def send_simple_message(email, delegate, block_num):
     global contact
     uuid = config["mail_gun"]["uuid"]
-    if contact[email]["count"] > 10:
-        print email + " exceed the maximum notification"
-        return
+    #if contact[email]["count"] > 10:
+        #print email + " exceed the maximum notification"
+        #return
     contact[email]["count"] += 1
 
     return requests.post(
