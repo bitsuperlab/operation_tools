@@ -23,6 +23,7 @@ config_data.close()
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
 asset_list = config["asset_list"]
+init_asset_list = asset_list + ["CNY","BTC"]
 delegate_list = config["delegate_list"]
 
 
@@ -103,7 +104,7 @@ def update_feed(price, asset):
 def fetch_price():
   print
   print '=================', time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())), '=================='
-  for asset in asset_list:
+  for asset in init_asset_list:
     price[asset] = []
   fetch_from_btc38()
   fetch_from_bter()
@@ -130,7 +131,7 @@ get_rate_from_yahoo()
 price = {}
 price_average = {}
 price_average_last = {}
-for asset in asset_list:
+for asset in init_asset_list:
   price[asset] = []
   price_average[asset] = 0.0
   price_average_last[asset] = 0.0
