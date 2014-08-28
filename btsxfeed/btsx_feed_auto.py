@@ -124,9 +124,10 @@ def fetch_price():
     else:
       change = 100.0
     print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
-    if fabs(change) > 5 and asset in asset_list_publish :
+    if fabs(change) > 5 :
       price_average_last[asset] = price_average[asset]
-      update_feed(price_average[asset], asset)
+      if asset in asset_list_publish :
+        update_feed(price_average[asset], asset)
   threading.Timer( 60, fetch_price).start()
 
 rate_usd_cny = 0.0
