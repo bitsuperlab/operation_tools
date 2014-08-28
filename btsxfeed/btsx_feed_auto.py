@@ -22,7 +22,9 @@ config_data.close()
 ## -----------------------------------------------------------------------
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
-asset_list = config["asset_list"]
+asset_list_publish = sys.argv
+asset_list_publish.pop(0)
+asset_list_display = config["asset_list_display"] + asset_list_publish
 asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 
 delegate_list = config["delegate_list"]
@@ -112,7 +114,7 @@ def fetch_price():
   fetch_from_btc38()
   fetch_from_bter()
 
-  for asset in asset_list:
+  for asset in asset_list_display:
     if len(price[asset]) == 0:
       print "Warning: can't get price of", asset
       continue
@@ -122,7 +124,7 @@ def fetch_price():
     else:
       change = 100.0
     print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
-    if fabs(change) > 5:
+    if fabs(change) > 5 and asset in asset_list_publish :
       price_average_last[asset] = price_average[asset]
       update_feed(price_average[asset], asset)
   threading.Timer( 60, fetch_price).start()

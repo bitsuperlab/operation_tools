@@ -4,6 +4,6 @@
     "username": "user",
     "password": "pass"
   },
-  "asset_list": ["USD"],
+  "asset_list_display": ["CNY", "USD", "BTC"],
   "delegate_list": ["delegate.baozi"]
 }

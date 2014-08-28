@@ -21,7 +21,8 @@ config_data.close()
 ## -----------------------------------------------------------------------
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
-asset_list = config["asset_list"]
+asset_list_publish = sys.argv
+asset_list_publish.pop(0)
 asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 
 delegate_list = config["delegate_list"]
@@ -103,7 +104,7 @@ def update_feed(price, asset):
           break
 
 def confirm():
-    for asset in asset_list:
+    for asset in asset_list_publish:
       if len(price[asset]) == 0:
         print "can't get price of", asset
         return False
