@@ -132,4 +132,6 @@ for asset in asset_list_all:
 fetch_from_btc38()
 fetch_from_bter()
 if confirm():
-  update_feed()
+    for asset in asset_list_publish:
+      if len(price[asset]) > 0:
+         update_feed(price_average[asset], asset)
