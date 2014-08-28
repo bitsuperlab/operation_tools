@@ -23,7 +23,8 @@ config_data.close()
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
 asset_list = config["asset_list"]
-init_asset_list = asset_list + ["CNY","BTC"]
+asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+
 delegate_list = config["delegate_list"]
 
 
@@ -38,6 +39,7 @@ def fetch_from_btc38():
     responce = requests.get(url=url, params=params, headers=headers)
     result = responce.json()
     price_cny = float(result["ticker"]["last"])
+    price["CNY"].append(price_cny)
     price["USD"].append(price_cny/rate_usd_cny)
     price["GLD"].append(price_cny/rate_xau_cny)
   except:
@@ -54,6 +56,7 @@ def fetch_from_bter():
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
     price_cny = float(result["last"])
+    price["CNY"].append(price_cny)
     price["USD"].append(price_cny/rate_usd_cny)
     price["GLD"].append(price_cny/rate_xau_cny)
   except:
@@ -104,7 +107,7 @@ def update_feed(price, asset):
 def fetch_price():
   print
   print '=================', time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())), '=================='
-  for asset in init_asset_list:
+  for asset in asset_list_all:
     price[asset] = []
   fetch_from_btc38()
   fetch_from_bter()
@@ -131,7 +134,7 @@ get_rate_from_yahoo()
 price = {}
 price_average = {}
 price_average_last = {}
-for asset in init_asset_list:
+for asset in asset_list_all:
   price[asset] = []
   price_average[asset] = 0.0
   price_average_last[asset] = 0.0
