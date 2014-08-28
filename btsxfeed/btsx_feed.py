@@ -22,6 +22,8 @@ config_data.close()
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
 asset_list = config["asset_list"]
+asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+
 delegate_list = config["delegate_list"]
 
 
@@ -36,10 +38,11 @@ def fetch_from_btc38():
     responce = requests.get(url=url, params=params, headers=headers)
     result = responce.json()
     price_cny = float(result["ticker"]["last"])
+    price["CNY"].append(price_cny)
     price["USD"].append(price_cny/rate_usd_cny)
     price["GLD"].append(price_cny/rate_xau_cny)
   except:
-    print "unknown error"
+    print "Warning: unknown error"
     return
 
 def fetch_from_bter():
@@ -52,10 +55,11 @@ def fetch_from_bter():
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
     price_cny = float(result["last"])
+    price["CNY"].append(price_cny)
     price["USD"].append(price_cny/rate_usd_cny)
     price["GLD"].append(price_cny/rate_xau_cny)
   except:
-    print "unknown error"
+    print "Warning: unknown error"
     return
 
 def get_rate_from_yahoo():
@@ -68,13 +72,35 @@ def get_rate_from_yahoo():
     pos = posnext = 0
     posnext = responce.text.find("\n", pos)
     rate_usd_cny = float(responce.text[pos:posnext])
+    print "Fetch: rate usd/cny", rate_usd_cny
     pos = posnext + 1
     posnext = responce.text.find("\n", pos)
     rate_xau_cny = float(responce.text[pos:posnext])
+    print "Fetch: rate xau/cny", rate_xau_cny
   except:
-    print "unknown error, try again after 1 seconds"
+    print "Warning: unknown error, try again after 1 seconds"
     time.sleep(1)
     get_rate_from_yahoo()
+
+def update_feed(price, asset):
+  for delegate in delegate_list:
+        headers = {'content-type': 'application/json'}
+        request = {
+            "method": "wallet_publish_price_feed",
+         "params": [delegate, price, asset],
+            "jsonrpc": "2.0",
+            "id": 1
+            }
+        while True:
+          try:
+            responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+            result = json.loads(vars(responce)["_content"])
+            print "Update:", delegate, price_average[asset], asset
+          except:
+            print "Warnning: Can't connect to rpc server, retry 5 seconds later"
+            time.sleep(5)
+            continue
+          break
 
 def confirm():
     for asset in asset_list:
@@ -93,36 +119,15 @@ def confirm():
       else:
         continue
 
-def update_feed():
-  for delegate in delegate_list:
-      for asset in asset_list:
-        headers = {'content-type': 'application/json'}
-        request = {
-            "method": "wallet_publish_price_feed",
-            "params": [delegate, price_average[asset], asset],
-            "jsonrpc": "2.0",
-            "id": 1
-            }
-        while True:
-          try:
-            responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-            result = json.loads(vars(responce)["_content"])
-            #print delegate, price_average[asset], asset
-          except:
-            print "Can't connect to rpc server, retry 5 seconds later"
-            time.sleep(5)
-            continue
-          break
-  print "ok, update the feed success!"
-
 rate_usd_cny = 0.0
 rate_xau_cny = 0.0
+get_rate_from_yahoo()
+
 price = {}
 price_average = {}
-for asset in asset_list:
+for asset in asset_list_all:
   price[asset] = []
   price_average[asset] = 0.0
-get_rate_from_yahoo()
 fetch_from_btc38()
 fetch_from_bter()
 if confirm():
