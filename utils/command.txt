@@ -1,1 +1,1 @@
-network_set_advanced_node_parameters { "peer_connection_retry_timeout": 30, "desired_number_of_connections": 50, "maximum_number_of_connections": 200 }
+default (unlocked) >>>  network_set_advanced_node_parameters { "peer_connection_retry_timeout": 30, "desired_number_of_connections": 50, "maximum_number_of_connections": 200 }
