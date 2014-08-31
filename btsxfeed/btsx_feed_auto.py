@@ -22,6 +22,8 @@ config_data.close()
 ## -----------------------------------------------------------------------
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
+change_min = config["price_limit"]["change_min"]
+change_max = config["price_limit"]["change_max"]
 asset_list_publish = sys.argv
 asset_list_publish.pop(0)
 asset_list_display = list(set(config["asset_list_display"] + asset_list_publish))
@@ -123,11 +125,11 @@ def fetch_price():
     if price_average_last[asset] != 0.0:
       change = 100.0 * (price_average[asset] - price_average_last[asset])/price_average_last[asset]
     else:
-      change = 100.0
+      change = 0.0
       price_average_last[asset] = price_average[asset]
     print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
     if asset in asset_list_publish :
-      if fabs(change) > 5  or time.time() - update_time[asset] > 23.5*60*60:
+      if (fabs(change) > change_min and fabs(change) < change_max ) or time.time() - update_time[asset] > 23.5*60*60:
         price_average_last[asset] = price_average[asset]
         update_feed(price_average[asset], asset)
   threading.Timer( 60, fetch_price).start()
