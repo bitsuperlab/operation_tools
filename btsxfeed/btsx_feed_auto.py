@@ -24,7 +24,7 @@ auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
 asset_list_publish = sys.argv
 asset_list_publish.pop(0)
-asset_list_display = config["asset_list_display"] + asset_list_publish
+asset_list_display = list(set(config["asset_list_display"] + asset_list_publish))
 asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 
 delegate_list = config["delegate_list"]
@@ -101,10 +101,11 @@ def update_feed(price, asset):
          result = json.loads(vars(responce)["_content"])
          print "Update:", delegate, price_average[asset], asset
        except:
-         print "Warnning: Can't connect to rpc server, retry 5 seconds later"
+         print "Warnning: rpc call error, retry 5 seconds later"
          time.sleep(5)
          continue
        break
+  update_time[asset] = time.time()
 
 def fetch_price():
   print
@@ -123,10 +124,11 @@ def fetch_price():
       change = 100.0 * (price_average[asset] - price_average_last[asset])/price_average_last[asset]
     else:
       change = 100.0
-    print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
-    if fabs(change) > 5 :
       price_average_last[asset] = price_average[asset]
-      if asset in asset_list_publish :
+    print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
+    if asset in asset_list_publish :
+      if fabs(change) > 5  or time.time() - update_time[asset] > 23.5*60*60:
+        price_average_last[asset] = price_average[asset]
         update_feed(price_average[asset], asset)
   threading.Timer( 60, fetch_price).start()
 
@@ -137,8 +139,10 @@ get_rate_from_yahoo()
 price = {}
 price_average = {}
 price_average_last = {}
+update_time = {}
 for asset in asset_list_all:
   price[asset] = []
   price_average[asset] = 0.0
   price_average_last[asset] = 0.0
+  update_time[asset] = 0
 fetch_price()
