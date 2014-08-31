@@ -4,6 +4,11 @@
     "username": "user",
     "password": "pass"
   },
-  "asset_list_display": ["CNY", "USD", "BTC"],
+  "price_limit": {
+    "common": "only update price feed when the change rate is between 5% ~ 50%",
+    "change_min": 5,
+    "change_max": 50
+  },
+  "asset_list_display": ["CNY", "USD", "BTC", "GLD"],
   "delegate_list": ["delegate.baozi", "delegate2.baozi"]
 }
