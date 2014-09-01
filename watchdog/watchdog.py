@@ -53,12 +53,6 @@ def call(method, params=[]):
     break  
   return None
 
-result = call("login", [RPC_USERNAME, RPC_PASSWORD])
-if "error" in result or not result["result"]:
-  print("Failed to login to RPC server:")
-  print(result["error"])
-  exit(1)
-
 while True:
   try:
     print("\n\nRunning Watchdog")
@@ -85,13 +79,6 @@ while True:
         print(result["error"])
         passphrase = getpass.getpass("Please enter your delegate's wallet passphrase: ")
         continue
-    
-    if "wallet_block_production_enabled" not in response or not response["wallet_block_production_enabled"]:
-      print("Enabling block production for all delegates.")
-      result = call("wallet_delegate_set_block_production", ["ALL", True])
-      if "error" in result:
-        print("Failed to enable block production:")
-        print(result["error"])
  
     response = call("get_info")["result"]
  
@@ -104,8 +91,4 @@ while True:
  
     time.sleep(10)
   except:
-    try:
-      call("login", [RPC_USERNAME, RPC_PASSWORD])
-    except:
-      pass
     time.sleep(10)
