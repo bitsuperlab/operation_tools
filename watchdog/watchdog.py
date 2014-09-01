@@ -22,29 +22,20 @@ PORT = 9989
 
 MAX_ALLOWABLE_HEAD_BLOCK_AGE = datetime.timedelta(minutes=2)
 
-request = {"method":"",
-           "params":[],
-           "id":0}
-
 passphrase = getpass.getpass("Please enter your delegate's wallet passphrase: ")
 
 def parse_date(date):
   return datetime.datetime.strptime(date, "%Y%m%dT%H%M%S")
 
-def connect():
-  sock = socket.socket()
-  sock.connect((HOST,PORT))
-  return sock
-sock = connect()
-
 def call(method, params=[]):
   headers = {'content-type': 'application/json'}
-     request = {
-         "method": method,
-         "params": params,
-         "jsonrpc": "2.0",
-         "id": 1
-         }
+  request = {
+          "method": method,
+          "params": params,
+          "jsonrpc": "2.0",
+          "id": 1
+          }
+
   while True:
     try:
       response = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
