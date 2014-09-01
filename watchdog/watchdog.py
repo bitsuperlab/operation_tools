@@ -14,11 +14,11 @@ import time
 import datetime
 from pprint import pprint
 
-RPC_USERNAME = "user"
-RPC_PASSWORD = "pass"
-WALLET_NAME = "default"
-HOST = "localhost"
-PORT = 9989
+
+auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
+url = config["bts_rpc"]["url"]
+
+WALLET_NAME = config["wallet_name"]
 
 MAX_ALLOWABLE_HEAD_BLOCK_AGE = datetime.timedelta(minutes=2)
 

@@ -1,0 +1,8 @@
+{
+  "bts_rpc": {
+    "url": "http://localhost:9989/rpc",
+    "username": "user",
+    "password": "pass"
+  },
+  "wallet_name": "default"
+}
