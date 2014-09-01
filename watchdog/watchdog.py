@@ -1,17 +1,18 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/env python
+# coding=utf8
 
 # This is a watchdog script which connects to a delegate periodically to verify that it is up and running,
 # and to do some basic maintenance tasks if the delegate is not ready to sign blocks and report if it is
 # unhealthy
 
-# Written by Nathan Hourt. If this script is useful to you, consider voting for delegate.nathanhourt.com :)
-
+import requests
+import sys
 import os
-import socket
 import json
 import getpass
 import time
 import datetime
+from pprint import pprint
 
 RPC_USERNAME = "user"
 RPC_PASSWORD = "pass"
@@ -20,17 +21,6 @@ HOST = "localhost"
 PORT = 9989
 
 MAX_ALLOWABLE_HEAD_BLOCK_AGE = datetime.timedelta(minutes=2)
-
-if "DELEGATE_RPC_USERNAME" in os.environ:
-  RPC_USERNAME = os.environ["DELEGATE_RPC_USERNAME"]
-if "DELEGATE_RPC_PASSWORD" in os.environ:
-  RPC_PASSWORD = os.environ["DELEGATE_RPC_PASSWORD"]
-if "DELEGATE_WALLET_NAME" in os.environ:
-  WALLET_NAME = os.environ["DELEGATE_WALLET_NAME"]
-if "DELEGATE_PORT_1212_TCP_ADDR" in os.environ:
-  HOST = os.environ["localhost"]
-if "DELEGATE_PORT_1212_TCP_PORT" in os.environ:
-  PORT = int(os.environ["DELEGATE_PORT_1212_TCP_PORT"])
 
 request = {"method":"",
            "params":[],
@@ -48,25 +38,26 @@ def connect():
 sock = connect()
 
 def call(method, params=[]):
-  request["method"] = method
-  request["params"] = params
-  request["id"] += 1
-
-  sock.send(json.dumps(request).encode('UTF-8'))
-  response = json.loads(sock.recv(100000).decode('UTF-8'))
-
-  if response["id"] != request["id"]:
-    print("Sent request with id %d, got response with id %d... Retrying." % (request["id"], response["id"]))
-    sock.send(json.dumps(request).encode('UTF-8'))
-    response = json.loads(sock.recv(100000).decode('UTF-8'))
-
-    if response["id"] != request["id"]:
-      print("Nope, still didn't work. Here's the request that failed:")
-      print(request)
-      print("And the response:")
-      print(response)
-    
-  return response
+  headers = {'content-type': 'application/json'}
+     request = {
+         "method": method,
+         "params": params,
+         "jsonrpc": "2.0",
+         "id": 1
+         }
+  while True:
+    try:
+      response = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+      result = json.loads(vars(response)["_content"])
+      print "Method:", method
+      print "Result:", result
+      return result
+    except:
+      print "Warnning: rpc call error, retry 5 seconds later"
+      time.sleep(5)
+      continue
+    break  
+  return None
 
 result = call("login", [RPC_USERNAME, RPC_PASSWORD])
 if "error" in result or not result["result"]:
@@ -94,7 +85,7 @@ while True:
  
     if "wallet_unlocked" not in response or not response["wallet_unlocked"]:
       print("Unlocking wallet.")
-      result = call("unlock", [9999999999, passphrase])
+      result = call("unlock", [99999999, passphrase])
       if "error" in result:
         print("Failed to unlock wallet:")
         print(result["error"])
@@ -120,7 +111,6 @@ while True:
     time.sleep(10)
   except:
     try:
-      sock = connect()
       call("login", [RPC_USERNAME, RPC_PASSWORD])
     except:
       pass
