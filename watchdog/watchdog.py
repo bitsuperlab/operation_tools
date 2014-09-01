@@ -14,6 +14,9 @@ import time
 import datetime
 from pprint import pprint
 
+config_data = open('config.json')
+config = json.load(config_data)
+config_data.close()
 
 auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
 url = config["bts_rpc"]["url"]
