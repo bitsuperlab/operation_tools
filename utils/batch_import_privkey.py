@@ -7,7 +7,7 @@ from pprint import pprint
 import time
 
 
-def importkeys(keys) :
+def importkeys(keys):
     url = "http://localhost:9988/rpc"
     headers = {'content-type': 'application/json'}
     payload2 = {
