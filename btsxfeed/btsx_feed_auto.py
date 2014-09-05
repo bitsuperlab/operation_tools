@@ -26,6 +26,8 @@ change_min = config["price_limit"]["change_min"]
 change_max = config["price_limit"]["change_max"]
 max_update_hours = config["price_limit"]["max_update_hours"]
 sample_timer = config["price_limit"]["sample_timer"]
+median_length = config["price_limit"]["median_length"]
+
 asset_list_publish = sys.argv
 asset_list_publish.pop(0)
 asset_list_display = list(set(config["asset_list_display"] + asset_list_publish))
@@ -103,7 +105,7 @@ def update_feed(price, asset):
        try:
          responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
          result = json.loads(vars(responce)["_content"])
-         print "Update:", delegate, price_average[asset], asset
+         print "Update:", delegate, price_median[asset], asset
        except:
          print "Warnning: rpc call error, retry 5 seconds later"
          time.sleep(5)
@@ -123,17 +125,21 @@ def fetch_price():
     if len(price[asset]) == 0:
       print "Warning: can't get price of", asset
       continue
-    price_average[asset] = sum(price[asset])/len(price[asset])
-    if price_average_last[asset] != 0.0:
-      change = 100.0 * (price_average[asset] - price_average_last[asset])/price_average_last[asset]
+    price_queue[asset].extend(price[asset])
+    while len(price_queue[asset]) > median_length :
+      price_queue[asset].pop(0)
+
+    price_median[asset] = sorted(price_queue[asset])[len(price_queue[asset])/2]
+    if price_median_last[asset] > 1e-20:
+      change = 100.0 * (price_median[asset] - price_median_last[asset])/price_median_last[asset]
     else:
       change = 0.0
-      price_average_last[asset] = price_average[asset]
-    print 'Fetch:', asset, price[asset], ",ave:", price_average[asset], ",change:", float('%.2f'% change),"%"
+      price_median_last[asset] = price_median[asset]
+    print 'Fetch:', asset, price[asset], ",median:", price_median[asset], ",change:", float('%.2f'% change),"%"
     if asset in asset_list_publish :
       if (fabs(change) > change_min and fabs(change) < change_max ) or time.time() - update_time[asset] > max_update_hours*60*60:
-        price_average_last[asset] = price_average[asset]
-        update_feed(price_average[asset], asset)
+        price_median_last[asset] = price_median[asset]
+        update_feed(price_median[asset], asset)
   threading.Timer( sample_timer, fetch_price).start()
 
 rate_usd_cny = 0.0
@@ -141,12 +147,14 @@ rate_xau_cny = 0.0
 get_rate_from_yahoo()
 
 price = {}
-price_average = {}
-price_average_last = {}
+price_queue = {}
+price_median = {}
+price_median_last = {}
 update_time = {}
 for asset in asset_list_all:
   price[asset] = []
-  price_average[asset] = 0.0
-  price_average_last[asset] = 0.0
+  price_queue[asset] = []
+  price_median[asset] = 0.0
+  price_median_last[asset] = 0.0
   update_time[asset] = 0
 fetch_price()
