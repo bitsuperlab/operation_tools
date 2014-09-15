@@ -84,7 +84,7 @@ def get_rate_from_yahoo():
       if asset == "GLD":
         asset_yahoo = "XAU"
       elif asset == "SLV":
-        asset_yahoo = "TODO"
+        asset_yahoo = "XAG"
       elif asset == "WTI":
         asset_yahoo = "TODO"
       else:
