@@ -34,6 +34,7 @@ asset_list_display = list(set(config["asset_list_display"] + asset_list_publish)
 asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 
 delegate_list = config["delegate_list"]
+rate_cny = {}
 
 
 def fetch_from_btc38():
@@ -48,8 +49,9 @@ def fetch_from_btc38():
     result = responce.json()
     price_cny = float(result["ticker"]["last"])
     price["CNY"].append(price_cny)
-    price["USD"].append(price_cny/rate_usd_cny)
-    price["GLD"].append(price_cny/rate_xau_cny)
+    for asset in asset_list_display:
+      if rate_cny[asset] != 0.0:
+        price[asset].append(price_cny/rate_cny[asset])
   except:
     print "Warning: unknown error"
     return
@@ -65,28 +67,39 @@ def fetch_from_bter():
     result = responce.json()
     price_cny = float(result["last"])
     price["CNY"].append(price_cny)
-    price["USD"].append(price_cny/rate_usd_cny)
-    price["GLD"].append(price_cny/rate_xau_cny)
+    for asset in asset_list_display:
+      if rate_cny[asset] != 0.0:
+        price[asset].append(price_cny/rate_cny[asset])
   except:
     print "Warning: unknown error"
     return
 
 def get_rate_from_yahoo():
   global headers
-  global rate_usd_cny, rate_xau_cny
+  global rate_cny
+  params_s = ""
   try:
     url="http://download.finance.yahoo.com/d/quotes.csv"
-    params = {'s':'USDCNY=X,XAUCNY=X','f':'l1','e':'.csv'}
+    for asset in asset_list_display:
+      if asset == "GLD":
+        asset_yahoo = "XAU"
+      elif asset == "SLV":
+        asset_yahoo = "TODO"
+      elif asset == "WTI":
+        asset_yahoo = "TODO"
+      else:
+        asset_yahoo = asset
+      params_s = params_s + asset_yahoo + "CNY=X,"
+    print "param is", params_s
+    params = {'s':params_s,'f':'l1','e':'.csv'}
     responce = requests.get(url=url, headers=headers,params=params)
     pos = posnext = 0
-    posnext = responce.text.find("\n", pos)
-    rate_usd_cny = float(responce.text[pos:posnext])
-    print "Fetch: rate usd/cny", rate_usd_cny
-    pos = posnext + 1
-    posnext = responce.text.find("\n", pos)
-    rate_xau_cny = float(responce.text[pos:posnext])
-    print "Fetch: rate xau/cny", rate_xau_cny
-    ## loop every 10 minutes
+
+    for asset in asset_list_display:
+      posnext = responce.text.find("\n", pos)
+      rate_cny[asset] = float(responce.text[pos:posnext])
+      print "Fetch: rate ", asset, rate_cny[asset]
+      pos = posnext + 1
     threading.Timer( 600, get_rate_from_yahoo).start()
   except:
     print "Warning: unknown error, try again after 1 seconds"
@@ -142,19 +155,18 @@ def fetch_price():
         update_feed(price_median[asset], asset)
   threading.Timer( sample_timer, fetch_price).start()
 
-rate_usd_cny = 0.0
-rate_xau_cny = 0.0
-get_rate_from_yahoo()
-
 price = {}
 price_queue = {}
 price_median = {}
 price_median_last = {}
 update_time = {}
 for asset in asset_list_all:
+  rate_cny[asset] = 0.0
   price[asset] = []
   price_queue[asset] = []
   price_median[asset] = 0.0
   price_median_last[asset] = 0.0
   update_time[asset] = 0
+
+get_rate_from_yahoo()
 fetch_price()
