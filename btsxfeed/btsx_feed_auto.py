@@ -105,12 +105,13 @@ def get_rate_from_yahoo():
     print "Warning: unknown error, try again after 1 seconds"
     threading.Timer( 1, get_rate_from_yahoo).start()
 
-def update_feed(price, asset):
+def update_feed(publish_feeds):
+  global update_time
   for delegate in delegate_list:
      headers = {'content-type': 'application/json'}
      request = {
-         "method": "wallet_publish_price_feed",
-         "params": [delegate, price, asset],
+         "method": "wallet_publish_feeds",
+         "params": [delegate, publish_feeds],
          "jsonrpc": "2.0",
          "id": 1
          }
@@ -118,21 +119,23 @@ def update_feed(price, asset):
        try:
          responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
          result = json.loads(vars(responce)["_content"])
-         print "Update:", delegate, price_median[asset], asset
+         print "Update:", delegate, publish_feeds
        except:
          print "Warnning: rpc call error, retry 5 seconds later"
          time.sleep(5)
          continue
        break
-  update_time[asset] = time.time()
+  update_time = time.time()
 
 def fetch_price():
+  global update_time
   print
   print '=================', time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())), '=================='
   for asset in asset_list_all:
     price[asset] = []
   fetch_from_btc38()
   fetch_from_bter()
+  need_update = False
 
   for asset in asset_list_display:
     if len(price[asset]) == 0:
@@ -150,23 +153,27 @@ def fetch_price():
       price_median_last[asset] = price_median[asset]
     print 'Fetch:', asset, price[asset], ",median:", price_median[asset], ",change:", float('%.2f'% change),"%"
     if asset in asset_list_publish :
-      if (fabs(change) > change_min and fabs(change) < change_max ) or time.time() - update_time[asset] > max_update_hours*60*60:
-        price_median_last[asset] = price_median[asset]
-        update_feed(price_median[asset], asset)
+      if (fabs(change) > change_min and fabs(change) < change_max ) or time.time() - update_time > max_update_hours*60*60:
+        need_update = True
+  if need_update == True:
+    publish_feeds = []
+    for asset in asset_list_publish:
+      publish_feeds.append([asset, price_median[asset]])
+      price_median_last[asset] = price_median[asset]
+    update_feed(publish_feeds)
   threading.Timer( sample_timer, fetch_price).start()
 
 price = {}
 price_queue = {}
 price_median = {}
 price_median_last = {}
-update_time = {}
+update_time = 0
 for asset in asset_list_all:
   rate_cny[asset] = 0.0
   price[asset] = []
   price_queue[asset] = []
   price_median[asset] = 0.0
   price_median_last[asset] = 0.0
-  update_time[asset] = 0
 
 get_rate_from_yahoo()
 fetch_price()
