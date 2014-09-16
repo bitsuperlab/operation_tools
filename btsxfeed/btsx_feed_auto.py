@@ -28,9 +28,9 @@ max_update_hours = config["price_limit"]["max_update_hours"]
 sample_timer = config["price_limit"]["sample_timer"]
 median_length = config["price_limit"]["median_length"]
 
-asset_list_publish = sys.argv
-asset_list_publish.pop(0)
-asset_list_display = list(set(config["asset_list_display"] + asset_list_publish))
+  asset_list_publish = sys.argv
+  asset_list_publish.pop(0)
+  asset_list_display = list(set(config["asset_list_display"] + asset_list_publish))
 asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 
 delegate_list = config["delegate_list"]
@@ -90,7 +90,7 @@ def get_rate_from_yahoo():
       else:
         asset_yahoo = asset
       params_s = params_s + asset_yahoo + "CNY=X,"
-    print "param is", params_s
+    #print "param is", params_s
     params = {'s':params_s,'f':'l1','e':'.csv'}
     responce = requests.get(url=url, headers=headers,params=params)
     pos = posnext = 0
@@ -158,6 +158,11 @@ def fetch_price():
   if need_update == True:
     publish_feeds = []
     for asset in asset_list_publish:
+      if price_median_last[asset] < 1e-20:
+        continue
+      change = 100.0 * (price_median[asset] - price_median_last[asset])/price_median_last[asset]
+      if fabs(change) > change_max  :
+        continue
       publish_feeds.append([asset, price_median[asset]])
       price_median_last[asset] = price_median[asset]
     update_feed(publish_feeds)
