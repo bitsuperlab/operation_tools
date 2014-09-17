@@ -133,6 +133,7 @@ def get_rate_from_yahoo():
       print "Fetch: rate ", asset, rate_cny[asset]
       pos = posnext + 1
     rate_cny["CNY"] = 0.0
+    rate_cny["BTC"] = 0.0
     threading.Timer( 600, get_rate_from_yahoo).start()
   except:
     print "Warning: unknown error, try again after 1 seconds"
