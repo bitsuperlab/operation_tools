@@ -47,15 +47,16 @@ def fetch_from_btc38():
     params = { 'c': 'btsx', 'mk_type': 'btc' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = responce.json()
-    price["BTC"].append(float(result["ticker"]["last"]))
+    price["BTC"].append(float("%.3g" % result["ticker"]["last"]))
+
     params = { 'c': 'btsx', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = responce.json()
-    price_cny = float(result["ticker"]["last"])
+    price_cny = float("%.3g" % result["ticker"]["last"])
     price["CNY"].append(price_cny)
     for asset in asset_list_display:
       if rate_cny[asset] != 0.0:
-        price[asset].append(price_cny/rate_cny[asset])
+        price[asset].append(float("%.3g" % (price_cny/rate_cny[asset])))
   except:
     print "Warning: unknown error"
     return
@@ -65,15 +66,16 @@ def fetch_from_bter():
     url="http://data.bter.com/api/1/ticker/btsx_btc"
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
-    price["BTC"].append(float(result["last"]))
+    price["BTC"].append(float("%.3g" % float(result["last"])))
+
     url="http://data.bter.com/api/1/ticker/btsx_cny"
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
-    price_cny = float(result["last"])
+    price_cny = float("%.3g" % float(result["last"]))
     price["CNY"].append(price_cny)
     for asset in asset_list_display:
       if rate_cny[asset] != 0.0:
-        price[asset].append(price_cny/rate_cny[asset])
+        price[asset].append(float ("%.3g" % (price_cny/rate_cny[asset])))
   except:
     print "Warning: unknown error"
     return
@@ -104,6 +106,7 @@ def get_rate_from_yahoo():
       rate_cny[asset] = float(responce.text[pos:posnext])
       print "Fetch: rate ", asset, rate_cny[asset]
       pos = posnext + 1
+    rate_cny["CNY"] = 0.0
     threading.Timer( 600, get_rate_from_yahoo).start()
   except:
     print "Warning: unknown error, try again after 1 seconds"
