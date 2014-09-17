@@ -49,6 +49,19 @@ def fetch_from_btc38():
     result = responce.json()
     price["BTC"].append(float("%.3g" % result["ticker"]["last"]))
 
+    params = { 'c': 'pts', 'mk_type': 'cny' }
+    responce = requests.get(url=url, params=params, headers=headers)
+    result = responce.json()
+    rate_cny["PTS"] = float(result["ticker"]["last"])
+    params = { 'c': 'ppc', 'mk_type': 'cny' }
+    responce = requests.get(url=url, params=params, headers=headers)
+    result = responce.json()
+    rate_cny["PPC"] = float(result["ticker"]["last"])
+    params = { 'c': 'ltc', 'mk_type': 'cny' }
+    responce = requests.get(url=url, params=params, headers=headers)
+    result = responce.json()
+    rate_cny["LTC"] = float(result["ticker"]["last"])
+
     params = { 'c': 'btsx', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = responce.json()
@@ -67,6 +80,19 @@ def fetch_from_bter():
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
     price["BTC"].append(float("%.3g" % float(result["last"])))
+
+    url="http://data.bter.com/api/1/ticker/pts_cny"
+    responce = requests.get(url=url, headers=headers)
+    result = responce.json()
+    rate_cny["PTS"] = float(result["last"])
+    url="http://data.bter.com/api/1/ticker/ppc_cny"
+    responce = requests.get(url=url, headers=headers)
+    result = responce.json()
+    rate_cny["PPC"] = float(result["last"])
+    url="http://data.bter.com/api/1/ticker/ltc_cny"
+    responce = requests.get(url=url, headers=headers)
+    result = responce.json()
+    rate_cny["LTC"] = float(result["last"])
 
     url="http://data.bter.com/api/1/ticker/btsx_cny"
     responce = requests.get(url=url, headers=headers)
