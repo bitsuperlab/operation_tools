@@ -29,9 +29,10 @@ sample_timer = config["price_limit"]["sample_timer"]
 median_length = config["price_limit"]["median_length"]
 
 asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
-if sys.argv[1] == "ALL":
-  asset_list_publish = asset_list_all
-  asset_list_display = asset_list_all
+if len(sys.argv) == 2:
+  if sys.argv[1] == "ALL":
+    asset_list_publish = asset_list_all
+    asset_list_display = asset_list_all
 else:
   asset_list_publish = sys.argv
   asset_list_publish.pop(0)
