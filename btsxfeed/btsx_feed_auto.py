@@ -130,7 +130,6 @@ def get_rate_from_yahoo():
     for asset in asset_list_display:
       posnext = responce.text.find("\n", pos)
       rate_cny[asset] = float(responce.text[pos:posnext])
-      print "Fetch: rate ", asset, rate_cny[asset]
       pos = posnext + 1
     rate_cny["CNY"] = 0.0
     rate_cny["BTC"] = 0.0
@@ -163,14 +162,15 @@ def update_feed(publish_feeds):
 
 def fetch_price():
   global update_time
-  print
-  print '=================', time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())), '=================='
   for asset in asset_list_all:
     price[asset] = []
   fetch_from_btc38()
   fetch_from_bter()
   need_update = False
 
+  print "========================================================================================="
+  print '{: <6}'.format("ASSET"), '{: <10}'.format("FEED"), '{: <10}'.format("MEDIAN"),'{: <8}'.format("CHANGE"),'{: <16}'.format("RATE(CNY/ASSET)"), "| CURRENT PRICE", time.strftime("(%Y%m%dT%H%M%S)", time.localtime(time.time()))
+  print "-----------------------------------------------------------------------------------------"
   for asset in asset_list_display:
     if len(price[asset]) == 0:
       print "Warning: can't get price of", asset
@@ -181,21 +181,23 @@ def fetch_price():
 
     price_median[asset] = sorted(price_queue[asset])[len(price_queue[asset])/2]
     if price_median_last[asset] > 1e-20:
-      change = 100.0 * (price_median[asset] - price_median_last[asset])/price_median_last[asset]
+      change[asset] = 100.0 * (price_median[asset] - price_median_last[asset])/price_median_last[asset]
     else:
-      change = 0.0
+      change[asset] = 0.0
       price_median_last[asset] = price_median[asset]
-    print 'Fetch:', asset, price[asset], ",median:", price_median[asset], ",change:", float('%.2f'% change),"%"
     if asset in asset_list_publish :
-      if (fabs(change) > change_min and fabs(change) < change_max ) or time.time() - update_time > max_update_hours*60*60:
+      if (fabs(change[asset]) > change_min and fabs(change[asset]) < change_max ) or time.time() - update_time > max_update_hours*60*60:
         need_update = True
+      print '{: <6}'.format(asset + "*"), '{: <10}'.format(price_median_last[asset]), '{: <10}'.format(price_median[asset]),'{: <8}'.format('%.2f%%'% change[asset]),'{: <16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+    else:
+      print '{: <6}'.format(asset), '{: <10}'.format(price_median_last[asset]), '{: <10}'.format(price_median[asset]),'{: <8}'.format('%.2f%%'% change[asset]),'{: <16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+  print "========================================================================================="
   if need_update == True:
     publish_feeds = []
     for asset in asset_list_publish:
       if price_median_last[asset] < 1e-20:
         continue
-      change = 100.0 * (price_median[asset] - price_median_last[asset])/price_median_last[asset]
-      if fabs(change) > change_max  :
+      if fabs(change[asset]) > change_max  :
         continue
       publish_feeds.append([asset, price_median[asset]])
       price_median_last[asset] = price_median[asset]
@@ -206,6 +208,7 @@ price = {}
 price_queue = {}
 price_median = {}
 price_median_last = {}
+change = {}
 update_time = 0
 for asset in asset_list_all:
   rate_cny[asset] = 0.0
@@ -213,6 +216,7 @@ for asset in asset_list_all:
   price_queue[asset] = []
   price_median[asset] = 0.0
   price_median_last[asset] = 0.0
+  change[asset] = 0.0
 
 get_rate_from_yahoo()
 fetch_price()
