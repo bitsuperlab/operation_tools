@@ -147,24 +147,24 @@ def order_book():
 
 def format_output():
   if short_enable == True:
-    print '{: <18}'.format("market %s/%s"%(quote_symbol,base_symbol)),"average price:", '{: <10}'.format(ave_price),"min cover:",'{: <10}'.format(ave_price*0.9),"short amount:",'{: <60}'.format('%s %s(%s %s)'%(volume_short_bta,quote_symbol, volume_short_bta/ave_price, base_symbol)),'{: <17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
+    print '{: <18}'.format("market %s/%s"%(quote_symbol,base_symbol)),"average price:", '{: <10}'.format(ave_price),"min cover:",'{: <10}'.format(ave_price*0.9),"short amount:",'{: <60}'.format('%s %s(%s %s)'%(volume_short_bta,quote_symbol, volume_short_bta/ave_price, base_symbol)),'{: >17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
   else:
-    print '{: <140}'.format("market %s/%s"%(quote_symbol,base_symbol)), '{: <17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
+    print '{: <140}'.format("market %s/%s"%(quote_symbol,base_symbol)), '{: >17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
 
   print '----------------------------------------------------------------------------------------------------------------------------------------------------------------------'
-  sys.stdout.write('{: <13} '.format("Bid Price"))
-  sys.stdout.write('{: <11} '.format("Vol("+quote_symbol+")"))
-  sys.stdout.write('{: <11} '.format("Depth("+quote_symbol+")"))
-  sys.stdout.write('{: <11} | '.format("Depth("+base_symbol+")"))
-  sys.stdout.write('{: <13} '.format("Ask Price"))
-  sys.stdout.write('{: <11} '.format("Vol("+quote_symbol+")"))
-  sys.stdout.write('{: <11} '.format("Depth("+quote_symbol+")"))
-  sys.stdout.write('{: <11} | '.format("Depth("+base_symbol+")"))
-  sys.stdout.write('{: <13} '.format("Cover Price"))
-  sys.stdout.write('{: <11} '.format("Vol("+quote_symbol+")"))
-  sys.stdout.write('{: <11} '.format("Depth("+quote_symbol+")"))
-  sys.stdout.write('{: <11} '.format("Depth("+base_symbol+")"))
-  sys.stdout.write('{: <11}'.format("Warnning"))
+  sys.stdout.write('{: >13} '.format("Bid Price"))
+  sys.stdout.write('{: >11} '.format("Vol("+quote_symbol+")"))
+  sys.stdout.write('{: >11} '.format("Depth("+quote_symbol+")"))
+  sys.stdout.write('{: >11} | '.format("Depth("+base_symbol+")"))
+  sys.stdout.write('{: >13} '.format("Ask Price"))
+  sys.stdout.write('{: >11} '.format("Vol("+quote_symbol+")"))
+  sys.stdout.write('{: >11} '.format("Depth("+quote_symbol+")"))
+  sys.stdout.write('{: >11} | '.format("Depth("+base_symbol+")"))
+  sys.stdout.write('{: >13} '.format("Cover Price"))
+  sys.stdout.write('{: >11} '.format("Vol("+quote_symbol+")"))
+  sys.stdout.write('{: >11} '.format("Depth("+quote_symbol+")"))
+  sys.stdout.write('{: >11} '.format("Depth("+base_symbol+")"))
+  sys.stdout.write('{: >11}'.format("Warnning"))
   print
   print '----------------------------------------------------------------------------------------------------------------------------------------------------------------------'
   total = max(len(order_bid), len(order_ask), len(order_cover))
@@ -176,20 +176,20 @@ def format_output():
       str_volume_bta = '%.2f'%order_bid[i]["volume_bta"]
       str_depth_bta = '%.2f'%order_bid[i]["depth_bta"]
       str_depth_bts = '%.2f'%order_bid[i]["depth_bts"]
-    sys.stdout.write('{: <13} '.format(str_price))
-    sys.stdout.write('{: <11} '.format(str_volume_bta))
-    sys.stdout.write('{: <11} '.format(str_depth_bta))
-    sys.stdout.write('{: <11} | '.format(str_depth_bts))
+    sys.stdout.write('{: >13} '.format(str_price))
+    sys.stdout.write('{: >11} '.format(str_volume_bta))
+    sys.stdout.write('{: >11} '.format(str_depth_bta))
+    sys.stdout.write('{: >11} | '.format(str_depth_bts))
     str_price = str_volume_bta = str_depth_bta = str_depth_bts = ""
     if i < len(order_ask):
       str_price = '%.8f'%order_ask[i]["price"]
       str_volume_bta = '%.2f'%order_ask[i]["volume_bta"]
       str_depth_bta = '%.2f'%order_ask[i]["depth_bta"]
       str_depth_bts = '%.2f'%order_ask[i]["depth_bts"]
-    sys.stdout.write('{: <13} '.format(str_price))
-    sys.stdout.write('{: <11} '.format(str_volume_bta))
-    sys.stdout.write('{: <11} '.format(str_depth_bta))
-    sys.stdout.write('{: <11} | '.format(str_depth_bts))
+    sys.stdout.write('{: >13} '.format(str_price))
+    sys.stdout.write('{: >11} '.format(str_volume_bta))
+    sys.stdout.write('{: >11} '.format(str_depth_bta))
+    sys.stdout.write('{: >11} | '.format(str_depth_bts))
     str_price_warn = str_price = str_volume_bta = str_depth_bta = str_depth_bts = ""
     if short_enable == True:
       if i < len(order_cover):
@@ -198,11 +198,11 @@ def format_output():
         str_depth_bta = '%.2f'%order_cover[i]["depth_bta"]
         str_depth_bts = '%.2f'%order_cover[i]["depth_bts"]
         str_price_warn = '%.8f'%(order_cover[i]["price"] * 10/9)
-      sys.stdout.write('{: <13} '.format(str_price))
-      sys.stdout.write('{: <11} '.format(str_volume_bta))
-      sys.stdout.write('{: <11} '.format(str_depth_bta))
-      sys.stdout.write('{: <11} '.format(str_depth_bts))
-      sys.stdout.write('{: <11}'.format(str_price_warn))
+      sys.stdout.write('{: >13} '.format(str_price))
+      sys.stdout.write('{: >11} '.format(str_volume_bta))
+      sys.stdout.write('{: >11} '.format(str_depth_bta))
+      sys.stdout.write('{: >11} '.format(str_depth_bts))
+      sys.stdout.write('{: >11}'.format(str_price_warn))
     print ""
 
 market_status()
