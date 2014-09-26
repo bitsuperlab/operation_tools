@@ -11,7 +11,7 @@ import sys
 auth = ("alt","alt")
 url = "http://localhost:9989/rpc"
 
-quote_symbol="CNY"
+quote_symbol="USD"
 base_symbol="BTSX"
 ################################
 headers = {'content-type': 'application/json'}
@@ -147,7 +147,7 @@ def order_book():
 
 def format_output():
   if short_enable == True:
-    print '{: <18}'.format("market %s/%s"%(quote_symbol,base_symbol)),"average price:", '{: <10}'.format(ave_price),"min cover:",'{: <10}'.format(ave_price*0.9),"short amount:",'{: <60}'.format('%s %s(%s %s)'%(volume_short_bta,quote_symbol, volume_short_bta/ave_price, base_symbol)),'{: >17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
+    print '{: <18}'.format("market %s/%s"%(quote_symbol,base_symbol)),"average price:", '{: <20}'.format(ave_price),"min cover:",'{: <20}'.format(ave_price*0.9),"short amount:",'{: <40}'.format('%s %s(%s %s)'%(volume_short_bta,quote_symbol, volume_short_bta/ave_price, base_symbol)),'{: >17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
   else:
     print '{: <140}'.format("market %s/%s"%(quote_symbol,base_symbol)), '{: >17}'.format(time.strftime("%H:%M:%S", time.localtime(time.time())))
 
