@@ -41,6 +41,54 @@ else:
 delegate_list = config["delegate_list"]
 rate_cny = {}
 
+def publish_rule2():
+  global update_time
+  if (fabs(change[asset]) > change_min and fabs(change[asset]) < change_max ) or time.time() - update_time > max_update_hours*60*60:
+    return True
+  else:
+    return False
+
+def publish_rule():
+  #When attempting to write a market maker the slow movement of the feed can be difficult.
+  #I would recommend the following:
+  #if  REAL_PRICE < MEDIAN and YOUR_PRICE > MEDIAN publish price
+  #if  you haven't published a price in the past 20 minutes
+  #   if  REAL_PRICE > MEDIAN  and  YOUR_PRICE < MEDIAN and abs( YOUR_PRICE - REAL_PRICE ) / REAL_PRICE  > 0.005 publish price
+  #The goal is to force the price down rapidly and allow it to creep up slowly.
+  #By publishing prices more often it helps market makers maintain the peg and minimizes opportunity for shorts to sell USD below the peg that the market makers then have to absorb.
+  #If we can get updates flowing smoothly then we can gradually reduce the spread in the market maker bots.
+  #*note: all prices in USD per BTSX
+  if time.time() - update_time > max_update_hours*60*60:
+    return True
+  elif price_median_source[asset] < price_median_wallet[asset] and price_publish[asset] > price_median_wallet[asset]:
+    return True
+  ## if  you haven't published a price in the past 20 minutes, and the price change more than 0.5%
+  elif fabs(change[asset]) > change_min and time.time() - update_time > 20*60:
+    return True
+  else:
+    return False
+
+def fetch_from_wallet():
+  for asset in asset_list_publish :
+     headers = {'content-type': 'application/json'}
+     request = {
+         "method": "blockchain_get_feeds_for_asset",
+         "params": [asset],
+         "jsonrpc": "2.0",
+         "id": 1
+         }
+     while True:
+       try:
+         responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
+         feed_list = json.loads(vars(responce)["_content"])["result"]
+         for feed in feed_list:
+           if feed["delegate_name"] == "MARKET":
+              price_median_wallet[asset] = float('%.3g'%float(feed["median_price"]))
+       except:
+         print "Warnning: rpc call error, retry 5 seconds later"
+         time.sleep(5)
+         continue
+       break
 
 def fetch_from_btc38():
   url="http://api.btc38.com/v1/ticker.php"
@@ -162,15 +210,15 @@ def update_feed(publish_feeds):
   update_time = time.time()
 
 def fetch_price():
-  global update_time
   for asset in asset_list_all:
     price[asset] = []
+  fetch_from_wallet()
   fetch_from_btc38()
   fetch_from_bter()
   need_update = False
 
   print "========================================================================================="
-  print '{: <6}'.format("ASSET"), '{: <10}'.format("FEED"), '{: <10}'.format("MEDIAN"),'{: <8}'.format("CHANGE"),'{: <16}'.format("RATE(CNY/ASSET)"), "| CURRENT PRICE", time.strftime("(%Y%m%dT%H%M%S)", time.localtime(time.time()))
+  print '{: >6}'.format("ASSET"), '{: >10}'.format("MEDIAN"), '{: >10}'.format("PUBLISH"), '{: >10}'.format("REAL"),'{: >8}'.format("CHANGE"),'{: >16}'.format("RATE(CNY/ASSET)"), "| CURRENT PRICE", time.strftime("(%Y%m%dT%H%M%S)", time.localtime(time.time()))
   print "-----------------------------------------------------------------------------------------"
   for asset in asset_list_display:
     if len(price[asset]) == 0:
@@ -180,43 +228,44 @@ def fetch_price():
     while len(price_queue[asset]) > median_length :
       price_queue[asset].pop(0)
 
-    price_median[asset] = sorted(price_queue[asset])[len(price_queue[asset])/2]
-    if price_median_last[asset] > 1e-20:
-      change[asset] = 100.0 * (price_median[asset] - price_median_last[asset])/price_median_last[asset]
+    price_median_source[asset] = sorted(price_queue[asset])[len(price_queue[asset])/2]
+    if price_publish[asset] > 1e-20:
+      change[asset] = 100.0 * (price_median_source[asset] - price_publish[asset])/price_publish[asset]
     else:
       change[asset] = 0.0
-      price_median_last[asset] = price_median[asset]
+      price_publish[asset] = price_median_source[asset]
     if asset in asset_list_publish :
-      if (fabs(change[asset]) > change_min and fabs(change[asset]) < change_max ) or time.time() - update_time > max_update_hours*60*60:
-        need_update = True
-      print '{: <6}'.format(asset + "*"), '{: <10}'.format(price_median_last[asset]), '{: <10}'.format(price_median[asset]),'{: <8}'.format('%.2f%%'% change[asset]),'{: <16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+      print '{: >6}'.format("*" + asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+      need_update = publish_rule()
     else:
-      print '{: <6}'.format(asset), '{: <10}'.format(price_median_last[asset]), '{: <10}'.format(price_median[asset]),'{: <8}'.format('%.2f%%'% change[asset]),'{: <16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+      print '{: >6}'.format(asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
   print "========================================================================================="
   if need_update == True:
     publish_feeds = []
     for asset in asset_list_publish:
-      if price_median_last[asset] < 1e-20:
+      if price_publish[asset] < 1e-20:
         continue
       if fabs(change[asset]) > change_max  :
         continue
-      publish_feeds.append([asset, price_median[asset]])
-      price_median_last[asset] = price_median[asset]
+      publish_feeds.append([asset, price_median_source[asset]])
+      price_publish[asset] = price_median_source[asset]
     update_feed(publish_feeds)
   threading.Timer( sample_timer, fetch_price).start()
 
 price = {}
 price_queue = {}
-price_median = {}
-price_median_last = {}
+price_median_source = {}
+price_median_wallet = {}
+price_publish = {}
 change = {}
 update_time = 0
 for asset in asset_list_all:
   rate_cny[asset] = 0.0
   price[asset] = []
   price_queue[asset] = []
-  price_median[asset] = 0.0
-  price_median_last[asset] = 0.0
+  price_median_source[asset] = 0.0
+  price_median_wallet[asset] = 0.0
+  price_publish[asset] = 0.0
   change[asset] = 0.0
 
 get_rate_from_yahoo()
