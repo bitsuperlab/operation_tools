@@ -17,6 +17,9 @@ config_data = open('config.json')
 config = json.load(config_data)
 config_data.close()
 
+##Actually I think it may be beneficial to discount all feeds by 0.995 to give the market makers some breathing room and provide a buffer against down trends.
+discount = 0.95
+
 ## -----------------------------------------------------------------------
 ## function about bts rpc
 ## -----------------------------------------------------------------------
@@ -83,7 +86,7 @@ def fetch_from_wallet():
          feed_list = json.loads(vars(responce)["_content"])["result"]
          for feed in feed_list:
            if feed["delegate_name"] == "MARKET":
-              price_median_wallet[asset] = float('%.3g'%float(feed["median_price"]))
+              price_median_wallet[asset] = float('%.3g'%float(feed["median_price"]/discount))
        except:
          print "Warnning: rpc call error, retry 5 seconds later"
          time.sleep(5)
@@ -247,7 +250,7 @@ def fetch_price():
         continue
       if fabs(change[asset]) > change_max  :
         continue
-      publish_feeds.append([asset, price_median_source[asset]])
+      publish_feeds.append([asset, price_median_source[asset]*discount])
       price_publish[asset] = price_median_source[asset]
     update_feed(publish_feeds)
   threading.Timer( sample_timer, fetch_price).start()
