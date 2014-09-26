@@ -18,7 +18,7 @@ config = json.load(config_data)
 config_data.close()
 
 ##Actually I think it may be beneficial to discount all feeds by 0.995 to give the market makers some breathing room and provide a buffer against down trends.
-discount = 0.95
+discount = 0.995
 
 ## -----------------------------------------------------------------------
 ## function about bts rpc
