@@ -98,25 +98,25 @@ def fetch_from_btc38():
   try:
     params = { 'c': 'btsx', 'mk_type': 'btc' }
     responce = requests.get(url=url, params=params, headers=headers)
-    result = responce.json()
+    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     price["BTC"].append(float("%.3g" % result["ticker"]["last"]))
 
     params = { 'c': 'pts', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
-    result = responce.json()
+    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     rate_cny["PTS"] = float(result["ticker"]["last"])
     params = { 'c': 'ppc', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
-    result = responce.json()
+    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     rate_cny["PPC"] = float(result["ticker"]["last"])
     params = { 'c': 'ltc', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
-    result = responce.json()
+    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     rate_cny["LTC"] = float(result["ticker"]["last"])
 
     params = { 'c': 'btsx', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
-    result = responce.json()
+    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     price_cny = float("%.3g" % result["ticker"]["last"])
     price["CNY"].append(price_cny)
     for asset in asset_list_display:
