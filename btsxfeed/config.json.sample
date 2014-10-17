@@ -9,11 +9,11 @@
     "change_min": 0.5,
     "change_max": 50,
     "common1": "set the frequency, how many seconds need to wait until next fetch",
-    "sample_timer": 120,
+    "sample_timer": 60,
     "common2": "update the feed price at least 23.5 hours a time",
     "max_update_hours": 23.5,
     "common3": "we use the media price, how many samples need to use",
-    "median_length": 31
+    "median_length": 91
   },
   "asset_list_display": ["CNY", "USD", "BTC", "GLD"],
   "delegate_list": ["delegate.baozi", "delegate2.baozi"]

@@ -126,6 +126,26 @@ def fetch_from_btc38():
     print "Warning: unknown error"
     return
 
+def fetch_from_yunbi():
+  try:
+    url="https://yunbi.com/api/v2/tickers/btccny.json"
+    responce = requests.get(url=url, headers=headers)
+    result = responce.json()
+    rate_cny["BTC"] = float(result["ticker"]["last"])
+
+    url="https://yunbi.com/api/v2/tickers/btsxcny.json"
+    responce = requests.get(url=url, headers=headers)
+    result = responce.json()
+    price_cny = float("%.3g" % float(result["ticker"]["last"]))
+    price["CNY"].append(price_cny)
+    for asset in asset_list_display:
+      if rate_cny[asset] != 0.0:
+        price[asset].append(float ("%.3g" % (price_cny/rate_cny[asset])))
+    rate_cny["BTC"] = 0.0
+  except:
+    print "Warning: unknown error"
+    return
+
 def fetch_from_bter():
   try:
     url="http://data.bter.com/api/1/ticker/btsx_btc"
@@ -217,6 +237,7 @@ def fetch_price():
     price[asset] = []
   fetch_from_wallet()
   fetch_from_btc38()
+  fetch_from_yunbi()
   fetch_from_bter()
   need_update = False
 
