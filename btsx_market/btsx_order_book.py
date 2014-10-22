@@ -64,7 +64,7 @@ def market_status():
       }
   responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
   market_status = json.loads(vars(responce)["_content"])["result"]
-  ave_price = market_status["center_price"]
+  ave_price = float(market_status["center_price"]["ratio"]) * base_precision/quote_precision
 
 def list_shorts():
   global volume_short_bta
