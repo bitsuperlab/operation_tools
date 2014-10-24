@@ -82,7 +82,7 @@ def list_shorts():
     price = float(order["market_index"]["order_price"]["ratio"]) * base_precision/quote_precision
     order_info["price"] =  price
     order_info["volume_bts"] = order["state"]["balance"] / base_precision
-    order_info["volume_bta"] = order_info["volume_bts"] * ave_price
+    order_info["volume_bta"] = order_info["volume_bts"] * ave_price /2
     price_limit = order["state"]["short_price_limit"]
     if price_limit == None:
       order_short.append(order_info)
