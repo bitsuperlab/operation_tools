@@ -64,7 +64,7 @@ def market_status():
       }
   responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
   market_status = json.loads(vars(responce)["_content"])["result"]
-  ave_price = float(market_status["center_price"]["ratio"]) * base_precision/quote_precision
+  ave_price = float(market_status["current_feed_price"])
 
 def list_shorts():
   global volume_short_bta
@@ -80,11 +80,9 @@ def list_shorts():
     order_info = {}
     order_info["type"] = order["type"]
     price = float(order["market_index"]["order_price"]["ratio"]) * base_precision/quote_precision
-    if price > ave_price:
-      continue
     order_info["price"] =  price
     order_info["volume_bts"] = order["state"]["balance"] / base_precision
-    order_info["volume_bta"] = order_info["volume_bts"] * price
+    order_info["volume_bta"] = order_info["volume_bts"] * ave_price
     price_limit = order["state"]["short_price_limit"]
     if price_limit == None:
       order_short.append(order_info)
