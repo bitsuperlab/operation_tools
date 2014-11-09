@@ -113,7 +113,7 @@ def blockchain_list_blocks():
        posnext = command_output.find("\n", pos+1)
        if posnext != -1:
           print "publish:" + command_output[pos+1:posnext]
-          block_info = command_output[pos+1:posnext].replace(" BTSX","BTSX ").split()
+          block_info = command_output[pos+1:posnext].replace(" BTS","BTS ").split()
           pos = posnext
           pubnub.publish("blockchain_list_blocks", block_info)
           if block_info[0] != "MISSED":

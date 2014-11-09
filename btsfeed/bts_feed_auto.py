@@ -31,7 +31,7 @@ max_update_hours = config["price_limit"]["max_update_hours"]
 sample_timer = config["price_limit"]["sample_timer"]
 median_length = config["price_limit"]["median_length"]
 
-asset_list_all = ["PTS", "PPC", "LTC", "BTC", "WTI", "SLV", "GLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+asset_list_all = ["RES1", "RES2", "RES3", "BTC", "OIL", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 if len(sys.argv) == 2:
   if sys.argv[1] == "ALL":
     asset_list_publish = asset_list_all
@@ -60,7 +60,7 @@ def publish_rule():
   #The goal is to force the price down rapidly and allow it to creep up slowly.
   #By publishing prices more often it helps market makers maintain the peg and minimizes opportunity for shorts to sell USD below the peg that the market makers then have to absorb.
   #If we can get updates flowing smoothly then we can gradually reduce the spread in the market maker bots.
-  #*note: all prices in USD per BTSX
+  #*note: all prices in USD per BTS
   if time.time() - update_time > max_update_hours*60*60:
     return True
   elif price_median_source[asset] < price_median_wallet[asset] and price_publish[asset] > price_median_wallet[asset]:
@@ -96,7 +96,7 @@ def fetch_from_wallet():
 def fetch_from_btc38():
   url="http://api.btc38.com/v1/ticker.php"
   try:
-    params = { 'c': 'btsx', 'mk_type': 'btc' }
+    params = { 'c': 'bts', 'mk_type': 'btc' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     price["BTC"].append(float("%.3g" % result["ticker"]["last"]))
@@ -114,7 +114,7 @@ def fetch_from_btc38():
     result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     rate_cny["LTC"] = float(result["ticker"]["last"])
 
-    params = { 'c': 'btsx', 'mk_type': 'cny' }
+    params = { 'c': 'bts', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     price_cny = float("%.3g" % result["ticker"]["last"])
@@ -185,11 +185,11 @@ def get_rate_from_yahoo():
   try:
     url="http://download.finance.yahoo.com/d/quotes.csv"
     for asset in asset_list_display:
-      if asset == "GLD":
+      if asset == "GOLD":
         asset_yahoo = "XAU"
-      elif asset == "SLV":
+      elif asset == "SILVER":
         asset_yahoo = "XAG"
-      elif asset == "WTI":
+      elif asset == "OIL" or asset == "RES1"  or asset == "RES2" or asset == "RES3":
         asset_yahoo = "TODO"
       else:
         asset_yahoo = asset

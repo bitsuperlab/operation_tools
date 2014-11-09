@@ -21,9 +21,9 @@ how to use this script?
 
 3. if you just want to watch the price, run command without parameter
 
-    ./btsx_feed_auto.py 
+    ./bts_feed_auto.py 
 
 4. if you want to publish feed,run command with the asset lists, like:
 
-   ./btsx_feed_auto.py USD CNY GLD
+   ./bts_feed_auto.py USD CNY GLD
 

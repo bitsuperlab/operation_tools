@@ -12,7 +12,7 @@ auth = ("alt","alt")
 url = "http://localhost:9989/rpc"
 
 quote_symbol="USD"
-base_symbol="BTSX"
+base_symbol="BTS"
 ################################
 headers = {'content-type': 'application/json'}
 short_enable = False
