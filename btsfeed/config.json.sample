@@ -15,6 +15,6 @@
     "common3": "we use the media price, how many samples need to use",
     "median_length": 91
   },
-  "asset_list_display": ["CNY", "USD", "BTC", "GLD"],
+  "asset_list_display": ["CNY", "USD", "BTC", "GOLD"],
   "delegate_list": ["delegate.baozi", "delegate2.baozi"]
 }

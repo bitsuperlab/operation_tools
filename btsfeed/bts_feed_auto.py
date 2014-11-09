@@ -96,25 +96,12 @@ def fetch_from_wallet():
 def fetch_from_btc38():
   url="http://api.btc38.com/v1/ticker.php"
   try:
-    params = { 'c': 'bts', 'mk_type': 'btc' }
+    params = { 'c': 'btsx', 'mk_type': 'btc' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     price["BTC"].append(float("%.3g" % result["ticker"]["last"]))
 
-    params = { 'c': 'pts', 'mk_type': 'cny' }
-    responce = requests.get(url=url, params=params, headers=headers)
-    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
-    rate_cny["PTS"] = float(result["ticker"]["last"])
-    params = { 'c': 'ppc', 'mk_type': 'cny' }
-    responce = requests.get(url=url, params=params, headers=headers)
-    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
-    rate_cny["PPC"] = float(result["ticker"]["last"])
-    params = { 'c': 'ltc', 'mk_type': 'cny' }
-    responce = requests.get(url=url, params=params, headers=headers)
-    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
-    rate_cny["LTC"] = float(result["ticker"]["last"])
-
-    params = { 'c': 'bts', 'mk_type': 'cny' }
+    params = { 'c': 'btsx', 'mk_type': 'cny' }
     responce = requests.get(url=url, params=params, headers=headers)
     result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
     price_cny = float("%.3g" % result["ticker"]["last"])
@@ -152,19 +139,6 @@ def fetch_from_bter():
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
     price["BTC"].append(float("%.3g" % float(result["last"])))
-
-    url="http://data.bter.com/api/1/ticker/pts_cny"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    rate_cny["PTS"] = float(result["last"])
-    url="http://data.bter.com/api/1/ticker/ppc_cny"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    rate_cny["PPC"] = float(result["last"])
-    url="http://data.bter.com/api/1/ticker/ltc_cny"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    rate_cny["LTC"] = float(result["last"])
 
     url="http://data.bter.com/api/1/ticker/btsx_cny"
     responce = requests.get(url=url, headers=headers)
