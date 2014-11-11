@@ -31,9 +31,9 @@ max_update_hours = config["price_limit"]["max_update_hours"]
 sample_timer = config["price_limit"]["sample_timer"]
 median_length = config["price_limit"]["median_length"]
 
-## todo: RES1, RES2, RES3, OIL
-#asset_list_all = ["RES1", "RES2", "RES3", "BTC", "OIL", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
-asset_list_all = ["BTC", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+## todo: GAS, DIESEL, OIL
+#asset_list_all = ["GAS", "DIESEL", "KRW", "BTC", "OIL", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
 if len(sys.argv) == 2:
   if sys.argv[1] == "ALL":
     asset_list_publish = asset_list_all
@@ -165,7 +165,7 @@ def get_rate_from_yahoo():
         asset_yahoo = "XAU"
       elif asset == "SILVER":
         asset_yahoo = "XAG"
-      elif asset == "OIL" or asset == "RES1"  or asset == "RES2" or asset == "RES3":
+      elif asset == "OIL" or asset == "GAS"  or asset == "DIESEL":
         asset_yahoo = "TODO"
       else:
         asset_yahoo = asset
@@ -235,10 +235,10 @@ def fetch_price():
       change[asset] = 0.0
       price_publish[asset] = price_median_source[asset]
     if asset in asset_list_publish :
-      print '{: >6}'.format("*" + asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+      print '{: >6}'.format("*" + asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.3f'% rate_cny[asset]), '|', price[asset]
       need_update = publish_rule()
     else:
-      print '{: >6}'.format(asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.2f'% rate_cny[asset]), '|', price[asset]
+      print '{: >6}'.format(asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.3f'% rate_cny[asset]), '|', price[asset]
   print "========================================================================================="
   if need_update == True:
     publish_feeds = []
