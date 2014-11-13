@@ -137,12 +137,12 @@ def fetch_from_yunbi():
 
 def fetch_from_bter():
   try:
-    url="http://data.bter.com/api/1/ticker/btsx_btc"
+    url="http://data.bter.com/api/1/ticker/bts_btc"
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
     price["BTC"].append(float("%.3g" % float(result["last"])))
 
-    url="http://data.bter.com/api/1/ticker/btsx_cny"
+    url="http://data.bter.com/api/1/ticker/bts_cny"
     responce = requests.get(url=url, headers=headers)
     result = responce.json()
     price_cny = float("%.3g" % float(result["last"]))
