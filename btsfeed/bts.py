@@ -99,15 +99,19 @@ class BTS():
         else:
             return response.json()
 
-    def get_lowest_ask(self, asset1, asset2):
-        response = self.request("blockchain_market_order_book", [asset1, asset2])
-        amount = float(response.json()["result"][1][0]["market_index"]["order_price"]["ratio"])
-        return amount
+    def get_lowest_ask(self, quote, base):
+        quotePrecision = self.get_precision(quote)
+        basePrecision  = self.get_precision(base)
+        response = self.request("blockchain_market_order_book", [quote, base])
+        highest_ask = float(response.json()["result"][1][0]["market_index"]["order_price"]["ratio"])*(basePrecision / quotePrecision)
+        return highest_ask
 
-    def get_lowest_bid(self, asset1, asset2):
-        response = self.request("blockchain_market_order_book", [asset1, asset2])
-        amount = float(response.json()["result"][0][0]["market_index"]["order_price"]["ratio"])
-        return amount
+    def get_highest_bid(self, quote, base):
+        quotePrecision = self.get_precision(quote)
+        basePrecision  = self.get_precision(base)
+        response = self.request("blockchain_market_order_book", [quote, base])
+        lowest_bid  = float(response.json()["result"][0][0]["market_index"]["order_price"]["ratio"])*(basePrecision / quotePrecision)
+        return lowest_bid
 
     def get_balance(self, account, asset):
         asset_id = self.get_asset_id(asset)
@@ -216,10 +220,12 @@ class BTS():
         return
 
     def get_last_fill (self, quote, base):
+        quotePrecision = self.get_precision(quote)
+        basePrecision  = self.get_precision(base)
         last_fill = -1
         response = self.request("blockchain_market_order_history", [quote, base, 0, 1])
         for order in response.json()["result"]:
-            last_fill = float(order["ask_price"]["ratio"])
+            last_fill = float(order["ask_price"]["ratio"])*(basePrecision / quotePrecision)
         return last_fill
 
     def get_price(self, quote, base):

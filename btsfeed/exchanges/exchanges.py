@@ -21,6 +21,8 @@ class Exchanges() :
          self.log = log
          self.order_book_ask = {"btc38":[], "yunbi":[], "bter":[]}
          self.order_book_bid = {"btc38":[], "yunbi":[], "bter":[]}
+         self.true_price_in_cny_per_bts = 0
+         self.rate_cny = {}
 
     ## ----------------------------------------------------------------------------
     ## Fetch data
