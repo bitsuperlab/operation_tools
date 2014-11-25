@@ -106,7 +106,7 @@ def fetch_price():
   print("===================%s=======================" % time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())))
   print('{: >12}'.format("EXCHANGE"),'{: >15}'.format("PRICE"), '{: >15}'.format("DEPTH"), '{: >8}'.format("SCALE"))
   print("---------------------------------------------------------")
-  for exchange_name in price_depth.keys():
+  for exchange_name in sorted(price_depth.keys()):
     price = price_depth[exchange_name][0]
     weight = price_depth[exchange_name][1] * scale[exchange_name]
     if price != 0:
@@ -134,7 +134,7 @@ def display_price():
      '{: >15}'.format("MEDIAN_PRICE"), '{: >15}'.format("LAST_PUBLISH"), '{: >8}'.format("CHANGE"))
   print("-----------------------------------------------------------------------------------------------")
   need_update = False
-  for asset in asset_list_display:
+  for asset in sorted(asset_list_display):
     if price_publish_last[asset] > 1e-20:
       price_change[asset] = 100.0 * (price_median_exchange[asset] - price_publish_last[asset])/price_publish_last[asset]
     else:
