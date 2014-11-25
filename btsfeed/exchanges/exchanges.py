@@ -105,6 +105,7 @@ class Exchanges() :
        return
 
     def fetch_from_exchange(self, exchange):
+      self.order_book_ask[exchange] = self.order_book_bid[exchange] = []
       if exchange == "btc38":
         self.fetch_from_btc38()
       elif exchange == "yunbi":
