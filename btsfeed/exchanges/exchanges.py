@@ -113,22 +113,26 @@ class Exchanges() :
         self.fetch_from_bter()
 
     def get_price_depth_from_exchange(self, exchange, ranger):
-      self.fetch_from_exchange(exchange)
+      try:
+        self.fetch_from_exchange(exchange)
 
-      price = (self.order_book_ask[exchange][0][0] + self.order_book_bid[exchange][0][0])/2.0
-      max_ask_price = price * (1+ranger)
-      min_bid_price = price * (1-ranger)
-      depth_bid = depth_ask = 0
-      for order in self.order_book_bid[exchange]:
-        if order[0] < min_bid_price:
-          break
-        depth_bid = depth_bid + order[1]
-      for order in self.order_book_ask[exchange]:
-        if order[0] > max_ask_price:
-          break
-        depth_ask = depth_ask + order[1]
+        price = (self.order_book_ask[exchange][0][0] + self.order_book_bid[exchange][0][0])/2.0
+        max_ask_price = price * (1+ranger)
+        min_bid_price = price * (1-ranger)
+        depth_bid = depth_ask = 0
+        for order in self.order_book_bid[exchange]:
+          if order[0] < min_bid_price:
+            break
+          depth_bid = depth_bid + order[1]
+        for order in self.order_book_ask[exchange]:
+          if order[0] > max_ask_price:
+            break
+          depth_ask = depth_ask + order[1]
 
-      depth = min(depth_bid, depth_ask)
-      self.log.debug("get price depth from %s, price is %.5f, depth is %.3f([%.5f,%.3f] - [%.5f,%.3f])" %
-          (exchange, price,  depth, min_bid_price, depth_bid, max_ask_price, depth_ask))
-      return [price, depth]
+        depth = min(depth_bid, depth_ask)
+        self.log.debug("get price depth from %s, price is %.5f, depth is %.3f([%.5f,%.3f] - [%.5f,%.3f])" %
+            (exchange, price,  depth, min_bid_price, depth_bid, max_ask_price, depth_ask))
+        return [price, depth]
+      except:
+        self.log.error("Error get price from %s!" % exchange)
+        return [0, 0]
