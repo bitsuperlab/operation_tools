@@ -128,6 +128,7 @@ def fetch_price():
     price_median_exchange[asset] = sorted(price_queue[asset])[int(len(price_queue[asset])/2)]
 
 def display_price():
+  global update_time
   print("===============================================================================================")
   print('{: >8}'.format("ASSET"),'{: >10}'.format("RATE(CNY)"), '{: >15}'.format("CURRENT_FEED"), '{: >15}'.format("CURRENT_PRICE"),
      '{: >15}'.format("MEDIAN_PRICE"), '{: >15}'.format("LAST_PUBLISH"), '{: >8}'.format("CHANGE"))
@@ -150,6 +151,7 @@ def display_price():
   print("===============================================================================================")
 
   if need_update == True:
+    update_time = time.time()
     publish_feeds = []
     for asset in asset_list_publish:
       if price_publish_last[asset] < 1e-20:
