@@ -31,7 +31,6 @@ class BTS():
 
     def publish_feeds(self, delegate, feed_list):
         response = self.request("wallet_publish_feeds", [delegate, feed_list])
-        self.log.info("%s publish feeds %s" % (delegate,feed_list))
         if response.status_code != 200:
             self.log.error("%s publish feeds error" % delegate)
             self.log.error(response.json())
