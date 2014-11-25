@@ -161,12 +161,12 @@ class BTS():
     def get_bids_out_of_range(self, account, quote, base, price, tolerance):
         quotePrecision = self.get_precision( quote )
         basePrecision = self.get_precision( base )
-        response = self.request("wallet_market_order_list", [quote, base, -1, account])
+        response = self.request("wallet_market_order_list", [quote, base, -1, account]).json()
         order_ids = []
         quote_shares = 0
         if "result" not in response or response["result"] == None:
            return [[], 0]
-        for pair in response.json()["result"]:
+        for pair in response["result"]:
             order_id = pair[0]
             item = pair[1]
             if item["type"] == "bid_order":
