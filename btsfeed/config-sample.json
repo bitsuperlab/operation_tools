@@ -1,0 +1,37 @@
+{
+  "asset_list_display": ["CNY", "USD", "BTC", "GOLD"],
+  "delegate_list": ["delegate.baozi", "delegate2.baozi"],
+  "client": {
+    "rpc_host": "localhost",
+    "rpc_port": "9989",
+    "rpc_user": "user",
+    "rpc_password": "password"
+  },
+  "price_limit": {
+    "common": "only update price feed when the change rate is between 5% ~ 100%",
+    "change_min": 0.5,
+    "change_max": 50,
+    "common1": "set the frequency, how many seconds need to wait until next fetch",
+    "sample_timer": 60,
+    "common2": "update the feed price at least 23.5 hours a time",
+    "max_update_hours": 23.5,
+    "common3": "we use the median price, how many samples need to use",
+    "median_length": 31
+  },
+  "market_weight": {
+    "common": "weight depenth on (depth * scale)",
+    "common1": "include depth between price*(1-depth_change) and price*(1+depth_change)",
+    "depth_change": 0.05,
+    "scale_bts_usd": 1,
+    "scale_bts_cny": 1,
+    "scale_btc38": 1,
+    "scale_yunbi": 1,
+    "scale_bter": 1
+  },
+  "log" : {
+    "filename" : "log-bts.txt",
+    "logMaxByte" : 1024000,
+    "logBackupCnt" : 15
+  }
+}
+

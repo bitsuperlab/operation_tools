@@ -1,39 +1,67 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding=utf8
 
-import requests
+import logging
+import logging.handlers
 import json
 import sys
-from math import fabs
-
 import datetime, threading, time
-from pprint import pprint
 
+from bts import BTS
+import exchanges as ex
+from math import fabs
+import os
 
-headers = {'content-type': 'application/json',
-   'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0'}
-
-config_data = open('config.json')
-config = json.load(config_data)
-config_data.close()
+## Loading Config
+config_file = open("config.json")
+config = json.load(config_file)
+config_file.close()
 
 ##Actually I think it may be beneficial to discount all feeds by 0.995 to give the market makers some breathing room and provide a buffer against down trends.
 discount = 0.995
 
-## -----------------------------------------------------------------------
-## function about bts rpc
-## -----------------------------------------------------------------------
-auth = (config["bts_rpc"]["username"], config["bts_rpc"]["password"])
-url = config["bts_rpc"]["url"]
+exchange_list = ["btc38", "bter", "yunbi"]
+## todo: GAS, DIESEL, OIL
+#asset_list_all = ["GAS", "DIESEL", "KRW", "BTC", "OIL", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+scale = {"bts_usd":config["market_weight"]["scale_bts_usd"], "bts_cny":config["market_weight"]["scale_bts_cny"],
+   "btc38":config["market_weight"]["scale_btc38"], "yunbi":config["market_weight"]["scale_yunbi"], "bter":config["market_weight"]["scale_bter"]}
+depth_change = config["market_weight"]["depth_change"]
+
 change_min = config["price_limit"]["change_min"]
 change_max = config["price_limit"]["change_max"]
 max_update_hours = config["price_limit"]["max_update_hours"]
 sample_timer = config["price_limit"]["sample_timer"]
 median_length = config["price_limit"]["median_length"]
 
-## todo: GAS, DIESEL, OIL
-#asset_list_all = ["GAS", "DIESEL", "KRW", "BTC", "OIL", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
-asset_list_all = ["KRW", "BTC", "SILVER", "GOLD", "TRY", "SGD", "HKD", "RUB", "SEK", "NZD", "CNY", "MXN", "CAD", "CHF", "AUD", "GBP", "JPY", "EUR", "USD"]
+delegate_list = config["delegate_list"]
+
+## Setting up Logger
+logger = logging.getLogger('bts')
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s[%(levelname)s]: %(message)s')
+
+#ch = logging.StreamHandler()
+#ch.setFormatter(formatter)
+#logger.addHandler(ch)
+
+## Setting up Logger
+fh = logging.handlers.RotatingFileHandler(config["log"]["filename"], maxBytes = config["log"]["logMaxByte"], backupCount = config["log"]["logBackupCnt"])
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
+## Opening RPC to wallet
+client = BTS(
+    config["client"]["rpc_user"],
+    config["client"]["rpc_password"],
+    config["client"]["rpc_host"],
+    config["client"]["rpc_port"]
+)
+
+asset_list_publish = []
+asset_list_display = []
+
 if len(sys.argv) == 2:
   if sys.argv[1] == "ALL":
     asset_list_publish = asset_list_all
@@ -43,17 +71,7 @@ else:
   asset_list_publish.pop(0)
   asset_list_display = list(set(config["asset_list_display"] + asset_list_publish))
 
-delegate_list = config["delegate_list"]
-rate_cny = {}
-
-def publish_rule2():
-  global update_time
-  if (fabs(change[asset]) > change_min and fabs(change[asset]) < change_max ) or time.time() - update_time > max_update_hours*60*60:
-    return True
-  else:
-    return False
-
-def publish_rule():
+def publish_rule_check(asset):
   #When attempting to write a market maker the slow movement of the feed can be difficult.
   #I would recommend the following:
   #if  REAL_PRICE < MEDIAN and YOUR_PRICE > MEDIAN publish price
@@ -65,208 +83,114 @@ def publish_rule():
   #*note: all prices in USD per BTS
   if time.time() - update_time > max_update_hours*60*60:
     return True
-  elif price_median_source[asset] < price_median_wallet[asset] and price_publish[asset] > price_median_wallet[asset]:
+  elif price_median_exchange[asset] < price_median_wallet[asset]/discount and price_publish_last[asset] > price_median_wallet[asset]/discount:
     return True
   ## if  you haven't published a price in the past 20 minutes, and the price change more than 0.5%
-  elif fabs(change[asset]) > change_min and time.time() - update_time > 20*60:
+  elif fabs(price_change[asset]) > change_min and time.time() - update_time > 20*60:
     return True
   else:
     return False
 
-def fetch_from_wallet():
-  for asset in asset_list_publish :
-     headers = {'content-type': 'application/json'}
-     request = {
-         "method": "blockchain_get_feeds_for_asset",
-         "params": [asset],
-         "jsonrpc": "2.0",
-         "id": 1
-         }
-     while True:
-       try:
-         responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-         feed_list = json.loads(vars(responce)["_content"])["result"]
-         for feed in feed_list:
-           if feed["delegate_name"] == "MARKET":
-              price_median_wallet[asset] = float('%.3g'%float(feed["median_price"]/discount))
-       except:
-         print "Warnning: rpc call error, retry 5 seconds later"
-         time.sleep(5)
-         continue
-       break
-
-def fetch_from_btc38():
-  url="http://api.btc38.com/v1/ticker.php"
-  try:
-    params = { 'c': 'btsx', 'mk_type': 'btc' }
-    responce = requests.get(url=url, params=params, headers=headers)
-    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
-    price["BTC"].append(float("%.3g" % result["ticker"]["last"]))
-
-    params = { 'c': 'btsx', 'mk_type': 'cny' }
-    responce = requests.get(url=url, params=params, headers=headers)
-    result = json.loads(vars(responce)['_content'].decode("utf-8-sig"))
-    price_cny = float("%.3g" % result["ticker"]["last"])
-    price["CNY"].append(price_cny)
-    for asset in asset_list_display:
-      if rate_cny[asset] != 0.0:
-        price[asset].append(float("%.3g" % (price_cny/rate_cny[asset])))
-  except:
-    print "Warning: unknown error"
-    return
-
-def fetch_from_yunbi():
-  try:
-    url="https://yunbi.com/api/v2/tickers/btccny.json"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    rate_cny["BTC"] = float(result["ticker"]["last"])
-
-    url="https://yunbi.com/api/v2/tickers/btsxcny.json"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    price_cny = float("%.3g" % float(result["ticker"]["last"]))
-    price["CNY"].append(price_cny)
-    for asset in asset_list_display:
-      if rate_cny[asset] != 0.0:
-        price[asset].append(float ("%.3g" % (price_cny/rate_cny[asset])))
-    rate_cny["BTC"] = 0.0
-  except:
-    print "Warning: unknown error"
-    return
-
-def fetch_from_bter():
-  try:
-    url="http://data.bter.com/api/1/ticker/bts_btc"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    price["BTC"].append(float("%.3g" % float(result["last"])))
-
-    url="http://data.bter.com/api/1/ticker/bts_cny"
-    responce = requests.get(url=url, headers=headers)
-    result = responce.json()
-    price_cny = float("%.3g" % float(result["last"]))
-    price["CNY"].append(price_cny)
-    for asset in asset_list_display:
-      if rate_cny[asset] != 0.0:
-        price[asset].append(float ("%.3g" % (price_cny/rate_cny[asset])))
-  except:
-    print "Warning: unknown error"
-    return
-
-def get_rate_from_yahoo():
-  global headers
-  global rate_cny
-  params_s = ""
-  try:
-    url="http://download.finance.yahoo.com/d/quotes.csv"
-    for asset in asset_list_display:
-      if asset == "GOLD":
-        asset_yahoo = "XAU"
-      elif asset == "SILVER":
-        asset_yahoo = "XAG"
-      elif asset == "OIL" or asset == "GAS"  or asset == "DIESEL":
-        asset_yahoo = "TODO"
-      else:
-        asset_yahoo = asset
-      params_s = params_s + asset_yahoo + "CNY=X,"
-    #print "param is", params_s
-    params = {'s':params_s,'f':'l1','e':'.csv'}
-    responce = requests.get(url=url, headers=headers,params=params)
-    pos = posnext = 0
-
-    for asset in asset_list_display:
-      posnext = responce.text.find("\n", pos)
-      rate_cny[asset] = float(responce.text[pos:posnext])
-      pos = posnext + 1
-    rate_cny["CNY"] = 0.0
-    rate_cny["BTC"] = 0.0
-    threading.Timer( 600, get_rate_from_yahoo).start()
-  except:
-    print "Warning: unknown error, try again after 1 seconds"
-    threading.Timer( 1, get_rate_from_yahoo).start()
-
-def update_feed(publish_feeds):
-  global update_time
-  for delegate in delegate_list:
-     headers = {'content-type': 'application/json'}
-     request = {
-         "method": "wallet_publish_feeds",
-         "params": [delegate, publish_feeds],
-         "jsonrpc": "2.0",
-         "id": 1
-         }
-     while True:
-       try:
-         responce = requests.post(url, data=json.dumps(request), headers=headers, auth=auth)
-         result = json.loads(vars(responce)["_content"])
-         print "Update:", delegate, publish_feeds
-       except:
-         print "Warnning: rpc call error, retry 5 seconds later"
-         time.sleep(5)
-         continue
-       break
-  update_time = time.time()
-
 def fetch_price():
-  for asset in asset_list_all:
-    price[asset] = []
-  fetch_from_wallet()
-  fetch_from_btc38()
-  fetch_from_yunbi()
-  fetch_from_bter()
-  need_update = False
-
-  print "========================================================================================="
-  print '{: >6}'.format("ASSET"), '{: >10}'.format("MEDIAN"), '{: >10}'.format("PUBLISH"), '{: >10}'.format("REAL"),'{: >8}'.format("CHANGE"),'{: >16}'.format("RATE(CNY/ASSET)"), "| CURRENT PRICE", time.strftime("(%Y%m%dT%H%M%S)", time.localtime(time.time()))
-  print "-----------------------------------------------------------------------------------------"
-  for asset in asset_list_display:
-    if len(price[asset]) == 0:
-      print "Warning: can't get price of", asset
+  global asset_list_display
+  for exchange_name in exchange_list:
+    if scale[exchange_name] == 0.0:
       continue
-    price_queue[asset].extend(price[asset])
+    price_depth[exchange_name] = exchanges.get_price_depth_from_exchange(exchange_name, depth_change)
+  price_depth["bts_usd"] = client.get_depth_in_range("USD","BTS", depth_change)
+  price_depth["bts_cny"] = client.get_depth_in_range("CNY","BTS", depth_change)
+  price_depth["bts_usd"][0] *= rate_cny["USD"]
+  price_total = weight_total = 0
+
+  os.system("clear")
+  print("===================%s=======================" % time.strftime("%Y%m%dT%H%M%S", time.localtime(time.time())))
+  print('{: >12}'.format("EXCHANGE"),'{: >15}'.format("PRICE"), '{: >15}'.format("DEPTH"), '{: >8}'.format("SCALE"))
+  print("---------------------------------------------------------")
+  for exchange_name in price_depth.keys():
+    price = price_depth[exchange_name][0]
+    weight = price_depth[exchange_name][1] * scale[exchange_name]
+    if price != 0:
+      price_total += price * weight
+      weight_total += weight
+    logger.info("%s: price is %.5f, depth is %.3f, scale is %.3f"%( exchange_name ,price, price_depth[exchange_name][1], scale[exchange_name]))
+    print('{: >12}'.format("%s" % exchange_name), '{: >15}'.format('%.5f'% price_depth[exchange_name][0]),
+          '{: >15}'.format('%.5f'% price_depth[exchange_name][1]), '{: >8}'.format('%.5f'% scale[exchange_name]))
+  price_average = price_total / weight_total
+  logger.info("average price is %.5f", price_average)
+  print("---------------------------------------------------------")
+  print('{: >12}'.format("average"), '{: >15}'.format('%.5f'% price_average))
+  print("========================================================")
+
+  for asset in asset_list_display:
+    price_queue[asset].append(price_average / rate_cny[asset])
     while len(price_queue[asset]) > median_length :
       price_queue[asset].pop(0)
+    price_median_exchange[asset] = sorted(price_queue[asset])[int(len(price_queue[asset])/2)]
 
-    price_median_source[asset] = sorted(price_queue[asset])[len(price_queue[asset])/2]
-    if price_publish[asset] > 1e-20:
-      change[asset] = 100.0 * (price_median_source[asset] - price_publish[asset])/price_publish[asset]
+def display_price():
+  print("===============================================================================================")
+  print('{: >8}'.format("ASSET"),'{: >10}'.format("RATE(CNY)"), '{: >15}'.format("CURRENT_FEED"), '{: >15}'.format("CURRENT_PRICE"),
+     '{: >15}'.format("MEDIAN_PRICE"), '{: >15}'.format("LAST_PUBLISH"), '{: >8}'.format("CHANGE"))
+  print("-----------------------------------------------------------------------------------------------")
+  need_update = False
+  for asset in asset_list_display:
+    if price_publish_last[asset] > 1e-20:
+      price_change[asset] = 100.0 * (price_median_exchange[asset] - price_publish_last[asset])/price_publish_last[asset]
     else:
-      change[asset] = 0.0
-      price_publish[asset] = price_median_source[asset]
+      price_change[asset] = 0.0
+      price_publish_last[asset] = price_median_exchange[asset]
+    price_median_wallet[asset] = client.get_median(asset)
+    asset_display = "%s" % asset
     if asset in asset_list_publish :
-      print '{: >6}'.format("*" + asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.3f'% rate_cny[asset]), '|', price[asset]
-      need_update = publish_rule()
-    else:
-      print '{: >6}'.format(asset),  '{: >10}'.format(price_median_wallet[asset]), '{: >10}'.format(price_publish[asset]), '{: >10}'.format(price_median_source[asset]),'{: >8}'.format('%.2f%%'% change[asset]),'{: >16}'.format('%.3f'% rate_cny[asset]), '|', price[asset]
-  print "========================================================================================="
+      asset_display = "*%s" % asset
+      need_update = publish_rule_check(asset)
+    print('{: >8}'.format("%s" % asset_display), '{: >10}'.format('%.3f'% rate_cny[asset]), '{: >15}'.format("%.4g" % price_median_wallet[asset]),
+         '{: >15}'.format('%.4g'% price_queue[asset][-1]), '{: >15}'.format("%.4g"%price_median_exchange[asset]),
+         '{: >15}'.format("%.4g"%price_publish_last[asset]), '{: >8}'.format('%.2f%%'% price_change[asset]))
+  print("===============================================================================================")
+
   if need_update == True:
     publish_feeds = []
     for asset in asset_list_publish:
-      if price_publish[asset] < 1e-20:
+      if price_publish_last[asset] < 1e-20:
         continue
-      if fabs(change[asset]) > change_max  :
+      if fabs(price_change[asset]) > change_max  :
         continue
-      publish_feeds.append([asset, price_median_source[asset]*discount])
-      price_publish[asset] = price_median_source[asset]
-    update_feed(publish_feeds)
-  threading.Timer( sample_timer, fetch_price).start()
+      publish_feeds.append([asset, price_median_exchange[asset]*discount])
+      price_publish_last[asset] = price_median_exchange[asset]
+    for delegate in delegate_list:
+      client.publish_feeds(delegate, publish_feeds)
 
-price = {}
+def thread_get_rate_from_yahoo():
+  global rate_cny
+  try:
+    rate_cny = exchanges.fetch_from_yahoo(asset_list_all)
+    threading.Timer( 600, thread_get_rate_from_yahoo).start()
+  except:
+    logger.error("Warning: unknown error, try again after 1 seconds")
+    threading.Timer( 1, thread_get_rate_from_yahoo).start()
+
+rate_cny = {}
+price_depth = {}
 price_queue = {}
-price_median_source = {}
+price_median_exchange = {}
 price_median_wallet = {}
-price_publish = {}
-change = {}
+price_publish_last = {}
+price_change = {}
 update_time = 0
 for asset in asset_list_all:
   rate_cny[asset] = 0.0
-  price[asset] = []
   price_queue[asset] = []
-  price_median_source[asset] = 0.0
+  price_median_exchange[asset] = 0.0
   price_median_wallet[asset] = 0.0
-  price_publish[asset] = 0.0
-  change[asset] = 0.0
+  price_publish_last[asset] = 0.0
+  price_change[asset] = 0.0
 
-get_rate_from_yahoo()
-fetch_price()
+exchanges = ex.Exchanges(logger)
+
+thread_get_rate_from_yahoo()
+
+while True:
+  fetch_price()
+  display_price()
+  time.sleep(sample_timer)
