@@ -31,7 +31,7 @@ class Exchanges() :
     def fetch_from_btc38(self):
       try :
         url="http://api.btc38.com/v1/depth.php"
-        params = { 'c': 'btsx', 'mk_type': 'cny' }
+        params = { 'c': 'bts', 'mk_type': 'cny' }
         response = requests.get(url=url, params=params, headers=self.header)
         self.order_book_ask["btc38"] = response.json()["asks"]
         self.order_book_bid["btc38"] = response.json()["bids"]
