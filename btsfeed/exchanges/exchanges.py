@@ -32,7 +32,7 @@ class Exchanges() :
       try :
         url="http://api.btc38.com/v1/depth.php"
         params = { 'c': 'bts', 'mk_type': 'cny' }
-        response = requests.get(url=url, params=params, headers=self.header)
+        response = requests.get(url=url, params=params, headers=self.header, timeout=3)
         self.order_book_ask["btc38"] = response.json()["asks"]
         self.order_book_bid["btc38"] = response.json()["bids"]
         #self.log.info(self.order_book_ask["btc38"])
@@ -45,7 +45,7 @@ class Exchanges() :
     def fetch_from_bter(self):
       try:
         url="http://data.bter.com/api/1/depth/bts_cny"
-        response = requests.get(url=url, headers=self.header)
+        response = requests.get(url=url, headers=self.header, timeout=3)
         self.order_book_ask["bter"] = []
         self.order_book_bid["bter"] = []
         for order in response.json()["asks"]:
@@ -62,7 +62,7 @@ class Exchanges() :
       try:
         url="https://yunbi.com/api/v2/depth.json"
         params = { 'market': 'btsxcny'}
-        response = requests.get(url=url, params=params, headers=self.header)
+        response = requests.get(url=url, params=params, headers=self.header, timeout=3)
         for order in response.json()["asks"]:
           self.order_book_ask["yunbi"].insert(0, [float(order[0]), float(order[1])])
         for order in response.json()["bids"]:
@@ -91,7 +91,7 @@ class Exchanges() :
         params_s = params_s + asset_yahoo + "CNY=X,"
       try :
        params = {'s':params_s,'f':'l1','e':'.csv'}
-       response = requests.get(url=url, headers=self.header,params=params)
+       response = requests.get(url=url, headers=self.header,params=params, timeout=3)
 
        pos = posnext = 0
        for asset in assets:
