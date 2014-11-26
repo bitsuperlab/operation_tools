@@ -63,6 +63,8 @@ class Exchanges() :
         url="https://yunbi.com/api/v2/depth.json"
         params = { 'market': 'btsxcny'}
         response = requests.get(url=url, params=params, headers=self.header, timeout=3)
+        self.order_book_ask["yunbi"] = []
+        self.order_book_bid["yunbi"] = []
         for order in response.json()["asks"]:
           self.order_book_ask["yunbi"].insert(0, [float(order[0]), float(order[1])])
         for order in response.json()["bids"]:
