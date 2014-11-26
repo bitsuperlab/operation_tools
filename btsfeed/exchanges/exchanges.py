@@ -33,8 +33,9 @@ class Exchanges() :
         url="http://api.btc38.com/v1/depth.php"
         params = { 'c': 'bts', 'mk_type': 'cny' }
         response = requests.get(url=url, params=params, headers=self.header, timeout=3)
-        self.order_book_ask["btc38"] = response.json()["asks"]
-        self.order_book_bid["btc38"] = response.json()["bids"]
+        result = json.loads(vars(response)['_content'].decode("utf-8-sig"))
+        self.order_book_ask["btc38"] = result["asks"]
+        self.order_book_bid["btc38"] = result["bids"]
         #self.log.info(self.order_book_ask["btc38"])
         #self.log.info(self.order_book_bid["btc38"])
       except:
@@ -112,7 +113,7 @@ class Exchanges() :
         self.fetch_from_btc38()
       elif exchange == "yunbi":
         self.fetch_from_yunbi()
-      if exchange == "bter":
+      elif exchange == "bter":
         self.fetch_from_bter()
 
     def get_price_depth_from_exchange(self, exchange, ranger):
