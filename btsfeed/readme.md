@@ -1,3 +1,7 @@
+requirement:
+python version >=3.4
+or python3 + module statistics
+
 how to use this script?
 
 1. run client with rpc enable, you can execute with a parameter like this:
@@ -15,9 +19,10 @@ how to use this script?
         "htdocs": "./htdocs"
        },
 
-2. cp config.json.sample to config.json
+2. cp config-sample.json to config.json
 
     edit the rpc parameter, delegate-list ...
+    it's better to change market_weight 
 
 3. if you just want to watch the price, run command without parameter
 

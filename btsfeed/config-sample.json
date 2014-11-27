@@ -21,7 +21,7 @@
   "market_weight": {
     "common": "weight depenth on (depth * scale)",
     "common1": "include depth between price*(1-depth_change) and price*(1+depth_change)",
-    "depth_change": 0.05,
+    "depth_change": 0.03,
     "scale_bts_usd": 1,
     "scale_bts_cny": 1,
     "scale_btc38": 1,
