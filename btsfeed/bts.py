@@ -119,7 +119,7 @@ class BTS():
         if not response.json():
             self.log.info("Error in get_balance: %s", response["_content"]["message"])
             return 0
-        if "result" not in response.json() or response.json()["result"] == None:
+        if "result" not in response.json() or len(response.json()["result"]) <1:
             return 0
         asset_array = response.json()["result"][0][1]
         amount = 0
