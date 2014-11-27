@@ -193,6 +193,9 @@ exchanges = ex.Exchanges(logger)
 thread_get_rate_from_yahoo()
 
 while True:
-  fetch_price()
-  display_price()
+  try:
+    fetch_price()
+    display_price()
+  except:
+    logger.error("Warning: unknown error, can't fetch price")
   time.sleep(sample_timer)
