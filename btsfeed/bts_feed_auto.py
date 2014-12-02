@@ -196,6 +196,7 @@ while True:
   try:
     fetch_price()
     display_price()
-  except:
+  except Exception as e:
     logger.error("Warning: unknown error, can't fetch price")
+    logger.exception(e)
   time.sleep(sample_timer)
