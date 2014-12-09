@@ -60,12 +60,12 @@ class BTS():
           order_price = float(order["market_index"]["order_price"]["ratio"]) * base_precision/quote_precision
           if order["type"] == "ask_order" and order_price  < max_ask_price:
             depth_ask = depth_ask + order["state"]["balance"] / base_precision
-          elif order["type"] == "cover_order" and order_price  > min_bid_price:
-            depth_ask = depth_ask + order["state"]["balance"] / (quote_precision * min_bid_price)
-        for order in order_short:
-          price_limit = order["state"]["limit_price"]
-          if price_limit == None or float(price_limit["ratio"]) * base_precision/quote_precision > min_bid_price:
-            depth_bid = depth_bid + order["state"]["balance"] / base_precision / 2
+          #elif order["type"] == "cover_order" and order_price  > min_bid_price:
+          #  depth_ask = depth_ask + order["state"]["balance"] / (quote_precision * min_bid_price)
+        #for order in order_short:
+        #  price_limit = order["state"]["limit_price"]
+        #  if price_limit == None or float(price_limit["ratio"]) * base_precision/quote_precision > min_bid_price:
+        #    depth_bid = depth_bid + order["state"]["balance"] / base_precision / 2
         depth = min(depth_bid, depth_ask)
         self.log.debug("price(%s/%s) is %.5f, depth is %.3f ([%.5f ,%.3f] - [%.5f, %.3f]" % (quote, base, price, depth, min_bid_price, depth_bid, max_ask_price, depth_ask))
         return [price, depth]
