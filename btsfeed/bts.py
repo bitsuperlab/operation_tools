@@ -63,7 +63,7 @@ class BTS():
           elif order["type"] == "cover_order" and order_price  > min_bid_price:
             depth_ask = depth_ask + order["state"]["balance"] / (quote_precision * min_bid_price)
         for order in order_short:
-          price_limit = order["state"]["short_price_limit"]
+          price_limit = order["state"]["limit_price"]
           if price_limit == None or float(price_limit["ratio"]) * base_precision/quote_precision > min_bid_price:
             depth_bid = depth_bid + order["state"]["balance"] / base_precision / 2
         depth = min(depth_bid, depth_ask)
