@@ -51,7 +51,7 @@ def get_covers():
     interest_rate = float(order["interest_rate"]["ratio"])
     print(order["expiration"], '{: >15}'.format("%.2f"% balance), quote_symbol, '{: >8}'.format("%.3f%%"%(interest_rate*100)),
       '{: >10}'.format("%.2f"%(balance*interest_rate)))
-    expiration_day = time.strftime("%Y-%m-%d",time.strptime(order["expiration"], "%Y%m%dT%H%M%S"))
+    expiration_day = time.strftime("%Y-%m-%d",time.strptime(order["expiration"], "%Y-%m-%dT%H:%M:%S"))
     if expiration_day == expiration_day_last:
       cover_expiration[-1][1] = cover_expiration[-1][1] + balance
       cover_expiration[-1][2] = cover_expiration[-1][2] + balance * interest_rate
