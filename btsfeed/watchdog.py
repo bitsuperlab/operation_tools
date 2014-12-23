@@ -23,8 +23,11 @@ client = BTS(
     config["client"]["rpc_port"]
 )
 
+runtime = 0
+timeout = 60
 while True:
   try:
+    runtime += 10
     response = client.request("get_info", [])
     blockchain_info = response.json()["result"]
 
@@ -34,8 +37,9 @@ while True:
     health = blockchain_info["blockchain_average_delegate_participation"]
     confirm = blockchain_info["blockchain_confirmation_requirement"]
 
-    if age >= 30:
+    if age >= timeout and runtime > 120:
       print("blockchain sync timeout, block %d age is %d, restart client" %(height, age))
+      runtime = 0
       os.system("killall -9 bitshares_client");
     else:
       print("[%s] block:%d,age:%d,health:%.2f%%,confirm:%s " %(timestamp,height, age,health, confirm))
