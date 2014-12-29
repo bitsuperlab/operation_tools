@@ -27,7 +27,6 @@ runtime = 0
 timeout = 60
 while True:
   try:
-    runtime += 10
     response = client.request("get_info", [])
     blockchain_info = response.json()["result"]
 
@@ -36,7 +35,9 @@ while True:
     timestamp = blockchain_info["blockchain_head_block_timestamp"]
     health = blockchain_info["blockchain_average_delegate_participation"]
     confirm = blockchain_info["blockchain_confirmation_requirement"]
-
+    wallet_open = blockchain_info["wallet_open"]
+    if wallet_open == True:
+      runtime += 10
     if age >= timeout and runtime > 120:
       print("blockchain sync timeout, block %d age is %d, restart client" %(height, age))
       runtime = 0
