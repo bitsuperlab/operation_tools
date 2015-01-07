@@ -38,6 +38,8 @@ while True:
     wallet_open = blockchain_info["wallet_open"]
     if wallet_open == True:
       runtime += 10
+    else:
+      runtime = 0
     if age >= timeout and runtime > 120:
       print("blockchain sync timeout, block %d age is %d, restart client" %(height, age))
       runtime = 0
@@ -46,6 +48,7 @@ while True:
       print("[%s] block:%d,age:%d,health:%.2f%%,confirm:%s " %(timestamp,height, age,health, confirm))
     time.sleep(10)
   except Exception as e:
+    runtime = 0
     print("unknown error, retry after 10 seconds")
     print(e)
     time.sleep(10)
