@@ -56,6 +56,6 @@ class MyComponent(ApplicationSession):
       self.IsConnect = False
       print("onDisconnect: {}".format(details))
 
-runner = ApplicationRunner(url = u"ws://btsbots.com:8080/ws", realm = u"realm1")
+runner = ApplicationRunner(url = u"ws://pusher.btsbots.com:8080/ws", realm = u"realm1")
 runner.run(MyComponent)
 

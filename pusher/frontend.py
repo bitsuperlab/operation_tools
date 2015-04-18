@@ -23,6 +23,6 @@ class MyComponent(ApplicationSession):
     def onDisconnect(self):
         asyncio.get_event_loop().stop()
 
-runner = ApplicationRunner(url = u"ws://btsbots.com:8080/ws", realm = u"realm1")
+runner = ApplicationRunner(url = u"ws://pusher.btsbots.com:8080/ws", realm = u"realm1")
 runner.run(MyComponent)
 
