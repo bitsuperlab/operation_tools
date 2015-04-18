@@ -7,6 +7,7 @@ import logging
 import time
 import sys
 from pprint import pprint
+import re
 
 
 class BTS():
@@ -322,3 +323,63 @@ class BTS():
                 sys.stdout.write("Please respond with 'yes' or 'no' "
                                  "(or 'y' or 'n').\n")
 
+    def get_trade_balance(self, account, quote, base):
+        base_shares = quote_shares = 0
+        quotePrecision = self.get_precision( quote )
+        basePrecision = self.get_precision( base )
+        quote_asset_id = self.get_asset_id(quote)
+        base_asset_id = self.get_asset_id(base)
+
+        response = self.request("wallet_account_balance", [account])
+        if not response.json():
+            self.log.error("Error in get_balance: %s", response["_content"]["message"])
+        elif "result" not in response.json() or len(response.json()["result"]) <1:
+            self.log.info("no balance")
+        else:
+            asset_array = response.json()["result"][0][1]
+            for item in asset_array:
+                if item[0] == quote_asset_id:
+                    quote_shares += item[1]
+                elif item[0] == base_asset_id:
+                    base_shares += item[1]
+
+        response = self.request("wallet_market_order_list", [quote, base, -1, account]).json()
+        if "result" not in response or response["result"] != None:
+          for pair in response["result"]:
+            item = pair[1]
+            if item["type"] == "bid_order":
+               quote_shares += int(item["state"]["balance"])
+            elif item["type"] == "ask_order":
+               base_shares += int(item["state"]["balance"])
+
+        return [float(quote_shares) / quotePrecision, base_shares / basePrecision]
+
+    def get_trade_history(self, date, account, quote, base):
+        quotePrecision = self.get_precision( quote )
+        basePrecision = self.get_precision( base )
+
+        response = self.request("get_info", [])
+        blocknum = int(response.json()["result"]["blockchain_head_block_num"])
+        startnum = blocknum - int(date)*24*60*6
+        if startnum < 0:
+          startnum = 0
+
+        trx_list = self.request("history", [ account, quote, 0, startnum ]).json()["result"]
+        trade_history = []
+        for trx in trx_list:
+          trade = {}
+          trade["timestamp"] = trx["timestamp"]
+          trade["account"] = account
+          for entries in trx["ledger_entries"]:
+            if entries["memo"].find("proceeds") != -1 and entries["memo"].find("%s / %s"%(quote,base)) != -1:
+              trade["price"] = float(re.search('@ ([^\s]*) ',entries["memo"]).group(1))
+              if entries["memo"].find("bid") != -1:
+                trade["amount_base"] = entries["amount"]["amount"]/basePrecision
+                trade["amount_quote"] = -trade["amount_base"] * trade["price"]
+                trade["type"] = "buy"
+              else:
+                trade["amount_quote"] = entries["amount"]["amount"]/quotePrecision
+                trade["amount_base"] = -trade["amount_quote"] / trade["price"]
+                trade["type"] = "sell"
+              trade_history.append(trade)
+        return trade_history

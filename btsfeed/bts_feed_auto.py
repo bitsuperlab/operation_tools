@@ -115,6 +115,8 @@ def fetch_price():
     logger.info("%s: price is %.5f, depth is %.3f, scale is %.3f"%( exchange_name ,price, price_depth[exchange_name][1], scale[exchange_name]))
     print('{: >12}'.format("%s" % exchange_name), '{: >15}'.format('%.5f'% price_depth[exchange_name][0]),
           '{: >15}'.format('%.5f'% price_depth[exchange_name][1]), '{: >8}'.format('%.5f'% scale[exchange_name]))
+  if weight_total == 0:
+    return
   price_average = price_total / weight_total
   logger.info("average price is %.5f", price_average)
   print("---------------------------------------------------------")
@@ -197,6 +199,9 @@ while True:
     fetch_price()
     display_price()
   except Exception as e:
+    os.system("clear")
+    print("Warning: unknown error, can't fetch price")
+    print(e)
     logger.error("Warning: unknown error, can't fetch price")
     logger.exception(e)
   time.sleep(sample_timer)

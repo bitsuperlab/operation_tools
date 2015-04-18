@@ -1,1 +1,1 @@
-from exchanges.exchanges import Exchanges 
+from .exchanges import Exchanges 

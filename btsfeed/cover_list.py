@@ -40,7 +40,7 @@ def get_asset_info():
   collected_fees = asset_info["collected_fees"] / quote_precision
 
 def get_covers():
-  response = client.request("blockchain_market_list_covers", [quote_symbol])
+  response = client.request("blockchain_market_list_covers", [quote_symbol, "BTS"])
   cover_list = response.json()["result"]
   cover_list.sort(key= operator.itemgetter("expiration"))
   cover_expiration= []
