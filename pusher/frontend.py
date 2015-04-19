@@ -20,9 +20,11 @@ class MyComponent(ApplicationSession):
 
         yield from self.subscribe(on_height, 'btsbots.demo.height')
 
+        res = yield from self.call('btsbots.get_last', 'btsbots.demo.height')
+        print("height is {}".format(res))
+
     def onDisconnect(self):
         asyncio.get_event_loop().stop()
 
 runner = ApplicationRunner(url = u"ws://pusher.btsbots.com:8080/ws", realm = u"realm1")
 runner.run(MyComponent)
-
