@@ -1,0 +1,14 @@
+{
+  "bts_client": {
+    "host": "localhost",
+    "port": "9988",
+    "user": "alt",
+    "password": "alt"
+  },
+  "wamp_client": {
+    "url": "ws://pusher.btsbots.com:8080/ws",
+    "realm": "realm1",
+    "user": "demo",
+    "password": "demo"
+  }
+}
