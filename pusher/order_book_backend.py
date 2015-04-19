@@ -109,7 +109,7 @@ class MyComponent(ApplicationSession):
               order_info["volume"] = volume_at_feed_price
               order_info["price"] = feed_price
               order_book["bid"].append(order_info)
-          order_book["bid"] = sorted(order_book["bid"], key=lambda item:item["price"], reverse=True)[-10:]
+          order_book["bid"] = sorted(order_book["bid"], key=lambda item:item["price"], reverse=True)[:10]
         return order_book
 
       quote = "CNY"
@@ -121,7 +121,7 @@ class MyComponent(ApplicationSession):
           if (order_book_last != order_book):
             order_book_last = order_book
             #print("update now")
-            pprint(order_book)
+            #pprint(order_book)
             self.mypublish(u'btsbots.demo.order_book_%s_%s'%(quote,base), order_book)
           #else:
             #print("don't need update")
