@@ -82,11 +82,11 @@ class MyComponent(ApplicationSession):
           order_book = get_order_book(quote,base)
           if (order_book_last != order_book):
             order_book_last = order_book
-            print("update now")
-            pprint(order_book)
+            #print("update now")
+            #pprint(order_book)
             self.mypublish(u'btsbots.demo.order_book_%s_%s'%(quote,base), order_book)
-          else:
-            print("don't need update")
+          #else:
+            #print("don't need update")
         except Exception as e:
           print(e)
         yield from sleep(10)
