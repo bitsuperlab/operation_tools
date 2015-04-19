@@ -8,6 +8,14 @@ from autobahn.wamp import auth
 from autobahn.wamp.types import CallResult
 from asyncio import coroutine
 
+import json
+
+config_file = open("config.json")
+config = json.load(config_file)
+config_file.close()
+
+config_wamp = config["wamp_client"]
+
 class MyComponent(ApplicationSession):
 
     @asyncio.coroutine
@@ -26,5 +34,5 @@ class MyComponent(ApplicationSession):
     def onDisconnect(self):
         asyncio.get_event_loop().stop()
 
-runner = ApplicationRunner(url = u"ws://pusher.btsbots.com:8080/ws", realm = u"realm1")
+runner = ApplicationRunner(url = config_wamp["url"], realm = config_wamp["realm"])
 runner.run(MyComponent)

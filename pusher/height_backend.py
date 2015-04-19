@@ -7,23 +7,27 @@ from autobahn.wamp import auth
 from autobahn.wamp.types import CallResult
 from asyncio import coroutine
 
-USER = u'demo'
-PASSWORDS = u'demo'
-
+import json
 from bts import BTS
-rpc_user, rpc_password, rpc_host, rpc_port = ["alt","alt","localhost",9988]
-client = BTS(rpc_user, rpc_password, rpc_host, rpc_port)
 
+config_file = open("config.json")
+config = json.load(config_file)
+config_file.close()
+
+config_wamp = config["wamp_client"]
+config_bts = config["bts_client"]
+
+client = BTS(config_bts["user"],config_bts["password"],config_bts["host"],config_bts["port"])
 
 class MyComponent(ApplicationSession):
    IsConnect = True
 
    def onConnect(self):
       self.IsConnect = True
-      self.join(self.config.realm, [u"wampcra"], USER)
+      self.join(self.config.realm, [u"wampcra"], config_wamp["user"])
 
    def onChallenge(self, challenge):
-      key = PASSWORDS.encode('utf8')
+      key = config_wamp["password"].encode('utf8')
       signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
       return signature.decode('ascii')
 
@@ -56,6 +60,6 @@ class MyComponent(ApplicationSession):
       self.IsConnect = False
       print("onDisconnect: {}".format(details))
 
-runner = ApplicationRunner(url = u"ws://pusher.btsbots.com:8080/ws", realm = u"realm1")
+runner = ApplicationRunner(url = config_wamp["url"], realm = config_wamp["realm"])
 runner.run(MyComponent)
 
