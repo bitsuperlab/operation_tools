@@ -1,5 +1,6 @@
+var init_done = false;
 refresh_order_book = function (text) {
-      var precision_price = 5
+      var precision_price = 7
       tab_bid = document.getElementById('order_book_bid');
       tab_ask = document.getElementById('order_book_ask');
       var order_bid_list = text["bid"];
@@ -107,6 +108,7 @@ connection.onopen = function (session) {
 
    console.log("session open");
 
+   if (init_done == false) {
    session.call('btsbots.get_last', ['bts.orderbook.'+quote+'_'+base]).then(
         function (res) {
            refresh_order_book(res);
@@ -117,6 +119,8 @@ connection.onopen = function (session) {
            refresh_trx(res);
         }
    );
+   init_done = true;
+   }
 
    function on_order_book(args) {
       refresh_order_book(args[0]);

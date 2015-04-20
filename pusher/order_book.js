@@ -1,5 +1,5 @@
 refresh_order_book = function (text) {
-      var precision_price = 5
+      var precision_price = 7
       tab_bid = document.getElementById('order_book_bid');
       tab_ask = document.getElementById('order_book_ask');
       var order_bid_list = text["bid"];
