@@ -155,6 +155,12 @@ init_market = function(_market) {
            refresh_trx(res);
         }
    );
+   active_session.call('btsbots.get_last', ['btsbots.demo.height']).then(
+        function (res) {
+           document.getElementById('height').innerHTML = res;
+        }
+   );
+
    init_done = true;
    }
 
@@ -166,6 +172,7 @@ init_market = function(_market) {
          current_subscription.push(subscription);
        }
        );
+
    function on_trx(args) {
       refresh_trx([args[0]]);
    }
@@ -174,6 +181,11 @@ init_market = function(_market) {
          current_subscription.push(subscription);
        }
        );
+
+   function on_height(args) {
+      document.getElementById('height').innerHTML = args[0];
+   }
+   active_session.subscribe('btsbots.demo.height', on_height);
 }
 
 connection.onopen = function (session) {
