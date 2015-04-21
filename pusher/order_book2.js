@@ -78,6 +78,7 @@ time_format = function (text) {
    return time_str;
 }
 refresh_trx = function (text) {
+      var precision_price = 7
       if (!text) return;
       tab = document.getElementById('transaction_history');
       var hisData = text;
@@ -87,7 +88,7 @@ refresh_trx = function (text) {
         blockid = data.shift();
         time = time_format(data.shift())
         type = data.shift();
-        price = data.shift().toFixed(5);
+        price = data.shift().toFixed(precision_price);
         volume = data.shift().toFixed(3);
         balance = (price*volume).toFixed(3)
         dataTR = tab.insertRow(1);
