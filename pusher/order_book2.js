@@ -1,4 +1,19 @@
+var market = document.getElementById('market').value;
+var last_market = market;
 var init_done = false;
+var active_session;
+var current_subscription = [];
+change_market = function(){
+  market = document.getElementById('market').value;
+  if(market == last_market){
+    return;
+  }else{
+    quite_market(last_market);
+    init_market(market);
+    last_market = market;
+}
+}
+
 refresh_order_book = function (text) {
       var precision_price = 7
       tab_bid = document.getElementById('order_book_bid');
@@ -103,18 +118,39 @@ var connection = new autobahn.Connection({
    realm: 'realm1'}
 );
 
-connection.onopen = function (session) {
-   var quote="CNY", base="BTS";
+quite_market = function(_market) {
+   init_done = false;
+   var quote=_market, base="BTS";
 
-   console.log("session open");
+   tab = document.getElementById('transaction_history');
+   var rowCount = tab.rows.length;
+   for (var index = rowCount -1; index>0; index--) {
+       tab.deleteRow(index);
+   }
+   //todo ....
+   var count =current_subscription.length ;
+   for (var index = 0; index<count; index++) {
+     active_session.unsubscribe(current_subscription[index]);
+   }
+   current_subscription= [];
+}
+
+init_market = function(_market) {
+   controls = document.getElementsByName('quote');
+   var count = controls.length;
+   for (var index = 0; index < count; index++){
+     controls[index].innerHTML = _market
+   }
+     
+   var quote=_market, base="BTS";
 
    if (init_done == false) {
-   session.call('btsbots.get_last', ['bts.orderbook.'+quote+'_'+base]).then(
+   active_session.call('btsbots.get_last', ['bts.orderbook.'+quote+'_'+base]).then(
         function (res) {
            refresh_order_book(res);
         }
    );
-   session.call('btsbots.get_history', ['bts.orderbook.'+quote+'_'+base+".trx",20]).then(
+   active_session.call('btsbots.get_history', ['bts.orderbook.'+quote+'_'+base+".trx",20]).then(
         function (res) {
            refresh_trx(res);
         }
@@ -125,11 +161,25 @@ connection.onopen = function (session) {
    function on_order_book(args) {
       refresh_order_book(args[0]);
    }
-   session.subscribe('bts.orderbook.'+quote+'_'+base, on_order_book);
+   active_session.subscribe('bts.orderbook.'+quote+'_'+base, on_order_book).then(
+       function(subscription) {
+         current_subscription.push(subscription);
+       }
+       );
    function on_trx(args) {
       refresh_trx([args[0]]);
    }
-   session.subscribe('bts.orderbook.'+quote+'_'+base+".trx", on_trx);
+   active_session.subscribe('bts.orderbook.'+quote+'_'+base+".trx", on_trx).then(
+       function(subscription) {
+         current_subscription.push(subscription);
+       }
+       );
+}
+
+connection.onopen = function (session) {
+   console.log("session open");
+   active_session = session;
+   init_market(market)
 };
 
 connection.open();

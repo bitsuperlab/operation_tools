@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html>
    <body>
-      <script src="http://pusher.btsbots.com/autobahn.min.js"></script>
-      <script src="order_book2.js"></script>
+<div>
+market: 
+  <select id="market" name="market" onchange="javascript:change_market()">
+    <option value="CNY" selected="true">CNY</option>
+    <option value="USD">USD</option>
+    <option value="GOLD">GOLD</option>
+    <option value="BTC">BTC</option>
+  </select>
+</div>
 
 			<div>
 				<div style="margin-right:25px;float:left;width:35%">
@@ -12,9 +19,9 @@
 					<div style="clear:both;height:1px;background:#009900;width:100%;margin: 5px 0 0 0"></div>
 					<table id="order_book_bid" class="tableStyle1" width="428">
 						<tbody><tr>
-                <th width="120">Price(<span class="mkType">CNY/BTS</span>)</th>
+                <th width="120">Price(<span class="mkType"><text name="quote">CNY</text>/BTS</span>)</th>
                 <th width="120">Volume(<span class="coinName">BTS</span>)</th>
-                <th width="120">Balance(<span class="coinName">CNY</span>)</th>
+                <th width="120">Balance(<span class="coinName"><text name="quote">CNY</text></span>)</th>
 						</tr>
 						
         </tbody></table>
@@ -25,9 +32,9 @@
 					</div>
 					<div style="clear:both;height:1px;background:#D01515;width:100%;margin: 5px 0 0 0"></div>
 					<table id="order_book_ask" class="tableStyle1" width="428">
-            <th width="120">Price(<span class="mkType">CNY/BTS</span>)</th>
+            <th width="120">Price(<span class="mkType"><text name="quote">CNY</text>/BTS</span>)</th>
             <th width="120">Volume(<span class="coinName">BTS</span>)</th>
-            <th width="120">Balance(<span class="coinName">CNY</span>)</th>
+            <th width="120">Balance(<span class="coinName"><text name="quote">CNY</text></span>)</th>
 						</tr>
 						
         </tbody></table>
@@ -43,12 +50,14 @@
 <th>Time</th>
 <th>Block</th>
 <th>type</th>
-<th>price(CNY/BTS)</th>
+<th>price(<text name="quote">CNY</text>/BTS)</th>
 <th>volume(BTS)</th>
-<th>balance(CNY)</th>
+<th>balance(<text name="quote">CNY</text>)</th>
 					</tr>
 					
           </tbody></table>
 			</div>
    </body>
+      <script src="http://pusher.btsbots.com/autobahn.min.js"></script>
+      <script src="order_book2.js"></script>
 </html>
