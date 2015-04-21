@@ -6,7 +6,7 @@ try {
 }
 
 var connection = new autobahn.Connection({
-   url: 'ws://pusher.btsbots.com:8080/ws',
+   url: 'ws://pusher.btsbots.com/ws',
    realm: 'realm1'}
 );
 
