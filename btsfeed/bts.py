@@ -9,6 +9,27 @@ import sys
 from pprint import pprint
 import re
 
+def to_fixed_point(match):
+    """Return the fixed point form of the matched number.
+
+    Parameters:
+        match is a MatchObject that matches exp_regex or similar.
+
+    If you wish to make match using your own regex, keep the following in mind:
+        group 1 should be the coefficient
+        group 3 should be the sign
+        group 4 should be the exponent
+
+    """
+    sign = -1 if match.group(3) == "-" else 1
+    coefficient = float(match.group(1))
+    exponent = sign * float(match.group(4))
+    if exponent <= 0:
+      format="%."+"%d"%(-exponent + len(match.group(1))-2)+"f"
+    else:
+      format="%.1f"
+    #print("change %se%s%s to %s" %(match.group(1),match.group(3),match.group(4),format % (coefficient * 10**exponent)))
+    return format % (coefficient * 10**exponent)
 
 class BTS():
     def __init__(self, user, password, host, port):
@@ -27,7 +48,8 @@ class BTS():
           'content-type': 'application/json',
           'Authorization': "Basic YTph"
         }
-        response = requests.post(self.url, data=json.dumps(payload), headers=headers)
+        exp_regex = re.compile(r"(\d+(\.\d+)?)[Ee](\+|-)(\d+)")
+        response = requests.post(self.url, data=exp_regex.sub(to_fixed_point,json.dumps(payload)), headers=headers)
         return response
 
     def publish_feeds(self, delegate, feed_list):
