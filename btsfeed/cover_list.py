@@ -36,7 +36,7 @@ def get_asset_info():
   response = client.request("blockchain_get_asset", [quote_symbol])
   asset_info = response.json()["result"]
   quote_precision = asset_info["precision"]
-  quote_supply = asset_info["current_share_supply"] / quote_precision
+  quote_supply = asset_info["current_supply"] / quote_precision
   collected_fees = asset_info["collected_fees"] / quote_precision
 
 def get_covers():
