@@ -160,7 +160,7 @@ def display_price():
         continue
       if fabs(price_change[asset]) > change_max  :
         continue
-      publish_feeds.append([asset, "%.15f"%price_median_exchange[asset]*discount])
+      publish_feeds.append([asset, "%.15f"%(price_median_exchange[asset]*discount)])
       price_publish_last[asset] = price_median_exchange[asset]
     for delegate in delegate_list:
       client.publish_feeds(delegate, publish_feeds)
