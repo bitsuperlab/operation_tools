@@ -62,7 +62,7 @@ class Exchanges() :
     def fetch_from_yunbi(self):
       try:
         url="https://yunbi.com/api/v2/depth.json"
-        params = { 'market': 'btsxcny'}
+        params = { 'market': 'btscny'}
         response = requests.get(url=url, params=params, headers=self.header, timeout=3)
         self.order_book_ask["yunbi"] = []
         self.order_book_bid["yunbi"] = []

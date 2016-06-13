@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+   <body>
+      <p>height of blockchain is <text id=height></text></p>
+<div>
+market: 
+  <select id="market" name="market" onchange="javascript:change_market()">
+    <option value="CNY" selected="true">CNY</option>
+    <option value="USD">USD</option>
+    <option value="GOLD">GOLD</option>
+    <option value="BTC">BTC</option>
+  </select>
+</div>
+
+			<div>
+				<div style="margin-right:25px;float:left;width:35%">
+					<div style="margin: 5px 0;">
+            <table height="25" width="428"><tbody><tr><td style="font-size:16px;color:#009900;border:0px;float:left;line-height:25px;text-align:left;" valign="middle" width="318"><b>bid</b></td><td style="border:0px;text-align:right" valign="middle" width="110" align="right"></td></tr></tbody></table>
+					</div>
+					<div style="clear:both;height:1px;background:#009900;width:100%;margin: 5px 0 0 0"></div>
+					<table id="order_book_bid" class="tableStyle1" width="428">
+						<tbody><tr>
+                <th width="120">Price(<span class="mkType"><text name="quote">CNY</text>/BTS</span>)</th>
+                <th width="120">Volume(<span class="coinName">BTS</span>)</th>
+                <th width="120">Balance(<span class="coinName"><text name="quote">CNY</text></span>)</th>
+						</tr>
+						
+        </tbody></table>
+				</div>
+				<div style="float:left;width:35%">
+					<div style="margin: 5px 0;">
+            <table height="25" width="428"><tbody><tr><td style="font-size:16px;color:#D01515;border:0px;float:left;line-height:25px;text-align:left;" valign="middle" width="318"><b>ask</b></td><td style="border:0px;text-align:right" valign="middle" width="110" align="right"></td></tr></tbody></table>
+					</div>
+					<div style="clear:both;height:1px;background:#D01515;width:100%;margin: 5px 0 0 0"></div>
+					<table id="order_book_ask" class="tableStyle1" width="428">
+            <th width="120">Price(<span class="mkType"><text name="quote">CNY</text>/BTS</span>)</th>
+            <th width="120">Volume(<span class="coinName">BTS</span>)</th>
+            <th width="120">Balance(<span class="coinName"><text name="quote">CNY</text></span>)</th>
+						</tr>
+						
+        </tbody></table>
+				</div>
+			</div>
+			</div>
+        <p></p>
+			<div>
+        <div style="margin: 5px 0;font-size:16px;color:#FF9933;"><b>transaction history</b></div>
+				<div style="clear:both;height:1px;background:#FF9933;width:70%;margin: 5px 0 0 0"></div>
+				<table id="transaction_history" style="float:left" id="tradeTable" class="tableStyle1" width="881">
+					<tbody><tr>
+<th>Time</th>
+<th>Block</th>
+<th>type</th>
+<th>price(<text name="quote">CNY</text>/BTS)</th>
+<th>volume(BTS)</th>
+<th>balance(<text name="quote">CNY</text>)</th>
+					</tr>
+					
+          </tbody></table>
+			</div>
+   </body>
+      <script src="http://pusher.btsbots.com/autobahn.min.js"></script>
+      <script src="order_book2.js"></script>
+</html>

@@ -17,9 +17,9 @@ def update_version():
         "id": 1
     }
 
-    for i in range(101):
+    for i in range(1, 101):
         payload = {
-            "method": "wallet_account_update_registration",
+            "method": "wallet_publish_version",
             "params": ["init" + str(i), "init" + str(i)],
             "jsonrpc": "2.0",
             "id": 1

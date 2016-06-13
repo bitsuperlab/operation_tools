@@ -36,11 +36,11 @@ def get_asset_info():
   response = client.request("blockchain_get_asset", [quote_symbol])
   asset_info = response.json()["result"]
   quote_precision = asset_info["precision"]
-  quote_supply = asset_info["current_share_supply"] / quote_precision
+  quote_supply = asset_info["current_supply"] / quote_precision
   collected_fees = asset_info["collected_fees"] / quote_precision
 
 def get_covers():
-  response = client.request("blockchain_market_list_covers", [quote_symbol])
+  response = client.request("blockchain_market_list_covers", [quote_symbol, "BTS"])
   cover_list = response.json()["result"]
   cover_list.sort(key= operator.itemgetter("expiration"))
   cover_expiration= []
