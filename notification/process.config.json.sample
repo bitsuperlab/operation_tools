@@ -1,0 +1,29 @@
+{
+  "monitor_procs" : {
+    "slack.exe" : {
+      "expected_count": 2
+    },
+    "notepad.exe" : {
+      "expected_count": 1
+    }
+  },
+  "contact": {
+    "XXX@gmail.com" : {
+      "count" : 0
+    },
+    "YYY@gmail.com": {
+      "count" : 0
+    },
+    "ZZZ@qq.com": {
+      "count" : 0
+    }
+  },
+  "mail_gun": {
+    "uuid": "key-from-mailgun"
+  },
+  "bts_rpc": {
+    "url": "http://localhost:9988/rpc",
+    "username": "user",
+    "password": "pass"
+  }
+}
